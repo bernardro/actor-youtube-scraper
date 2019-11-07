@@ -16,10 +16,15 @@
     },
     "devDependencies": {
         "@apify/eslint-config": "0.0.3",
-        "@types/puppeteer": "^1.20.2"
+        "@types/puppeteer": "^1.20.2",
+        "chai": "^4.2.0",
+        "eslint": "^6.5.1",
+        "mocha": "^6.2.2",
+        "sinon": "^7.5.0"
     },
     "scripts": {
-        "start": "node src/main.js"
+        "start": "node src/main.js",
+        "test": "mocha test/utility_spec.js"
     },
     "author": "bernardo@sonkomail.com",
     "contributors": [
