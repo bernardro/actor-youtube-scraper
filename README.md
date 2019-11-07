@@ -37,7 +37,7 @@ This actor recognizes the following fields:
 | ----- | ---- | ----------- |  
 | searchKeywords | String | (required) Query to search Youtube for |  
 | maxResults | Integer | (required) How many videos should be loaded from each search, default is 50, maximum is 999 |  
-| postsFromDate | String | (required) How far back in history to go, e.g "2 years ago" or "5 months ago". You can use *minutes*,*hours*,*days*,*weeks*,*months* and *years* |  
+| postsFromDate | String | (optional) How far back in history to go, e.g "2 years ago" or "5 months ago". You can use *minutes*,*hours*,*days*,*weeks*,*months* and *years* |  
 | startUrl | String | (optional) Starting Youtube URLs, default is `https://youtube.com` |  
 | proxyConfiguration | Object | Proxy configuration |  
 | verboseLog | Boolean | Whether to turn on verbose logging |  
@@ -58,22 +58,23 @@ This solution requires the use of **Proxy servers**, either your own proxy serve
     "verboseLog": false
 }
 ```
-  
 ## During the run
 
 During the run, the actor will output messages letting you know what it is doing and which youtube URL is being processed.  
 
 If an error occurs there will be a detail error log in the run console as well as in the output dataset.  
-
-## Sample scraper output
+  
+  
+## Scraper output
 
 As the scraper runs, the actor stores results into a dataset. Each item is a separate item in the dataset.
 
-The actor converts Youtubes data into a form that can be analysed and compared. E.g `1.2M` likes is converted into `1200000` likes. 
+The actor converts Youtubes data into a form that can be analysed and compared. E.g `1.2M` likes is converted into `1200000` likes.  
 
 The output can be manipulated in any language (Python, PHP, Node JS/NPM). See the FAQ or <a href="https://www.apify.com/docs/api" target="blank">our API reference</a> to learn more about getting results from this Youtube actor.
 
 Here is a sample of the output (with long lines shortened):  
+  
 ```json
 {
   "title": "Terminator: Dark Fate - Official Trailer (2019) - Paramount Pictures",
@@ -88,4 +89,11 @@ Here is a sample of the output (with long lines shortened):
   "numberOfSubscribers": 1660000,
   "details": "Welcome to the day after <a class=\"yt-simple-endpoint style-sco..."
 }
-```
+```  
+  
+## Notes for developers
+
+This actor manipulates the mouse and keyboard like a real user would.  
+
+The scraper uses xpaths to find elements, all xpaths are stored in one file for easy update in case Youtube changes its code.  
+
