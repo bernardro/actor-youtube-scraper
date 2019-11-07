@@ -79,6 +79,37 @@ describe('getCutoffDate', () => {
     });
 });
 
+describe('isDateInputValid', () => {
+    const isValid = utils.isDateInputValid;
+
+    it('should validate date input as entered by user', () => {
+        assert(isValid('1 week ago') === true, '1 week ago is valid');
+        assert(isValid('1 day ago') === true, '1 day ago is valid');
+        assert(isValid('1 hour ago') === true, '1 hour ago is valid');
+        assert(isValid('3 weeks ago') === true, '3 weeks ago is valid');
+        assert(isValid('2 hours ago') === true, '2 hours ago is valid');
+        assert(isValid('13 weeks ago') === true, '13 weeks ago is valid');
+        assert(isValid('60 weeks ago') === true, '60 weeks ago is valid');
+        assert(isValid('36 hours ago') === true, '36 hours ago is valid');
+        assert(isValid('120 minutes ago') === true, '120 minutes ago is valid');
+        assert(isValid('3 minutes ago') === true, '3 minutes ago is valid');
+        assert(isValid('9 days ago') === true, '9 days ago is valid');
+
+        assert(isValid('0 days ago') === false, '0 days ago is invalid');
+        assert(isValid('400 days ago') === true, '400 days ago is invalid');
+        assert(isValid('1 week agos') === false, '1 week agos is invalid');
+        assert(isValid('n days ago') === false, 'n days ago is invalid');
+        assert(isValid('3 decades ago') === false, '3 decades ago is invalid');
+        assert(isValid('minutes ago') === false, 'minutes ago is invalid');
+        assert(isValid('hours') === false, 'hours is invalid');
+        assert(isValid('ago') === false, 'ago is invalid');
+        assert(isValid('60') === false, '60 is invalid');
+        assert(isValid('36 # ago') === false, '36 # ago is invalid');
+        assert(isValid('120 minutes ago ##') === false, '120 minutes ago ## is invalid');
+
+    });
+});
+
 describe('getYoutubeDateFilters', () => {
     const filter = utils.getYoutubeDateFilters;
 
