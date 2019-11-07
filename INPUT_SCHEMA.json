@@ -27,11 +27,11 @@
             "type": "string",
             "editor": "textfield",
             "description": "How far back in history to go e.g <br />30 minutes ago <br />1 week ago <br />5 months ago <br />4 years ago, etc.",
-            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *",
+            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *$",
             "minLength": 0,
             "maxLength": 16,
-            "prefill": "2 years ago",
-            "nullable": true
+            "prefill": "5 years ago",
+            "nullable": false
         },
         "startUrl": {
             "title": "Start URL",
@@ -61,6 +61,7 @@
     "required": [
         "startUrl",
         "searchKeywords",
-        "maxResults"
+        "maxResults",
+        "postsFromDate"
     ]
 }
