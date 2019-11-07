@@ -1,13 +1,16 @@
 # Actor - Youtube scraper
 
-## Youtube scraper powered by Apifys pupetteer crawler
+## Youtube scraper powered by Apify's puppeteer crawler
 
 Youtube has an API that gives access to search data as well as detailed data on each video.  
-This however requires you to log in and although it is free for now, the API limits each user to a quota.  
-The youtube API is mainly designed for apps that reuse the data.  
+This however requires you to log in and although it is free for now, they impose quota limits on each API endpoint.
+This is understandable as it prevents abuse but it may be too restrictive or technical for simple use cases.  
+  
+The youtube API is designed for apps that manipulate and reuse the data programmatically, 
+and apps that require detailed technical information.  
 
-At this time this youtube scraper allow you to:  
-- Scrape videos by specifying search keyword(s) and get:  
+That is why this scraper was created and implemented as an "actor" on the Apify platform. At this time this actor allows you to:  
+- Scrape videos by specifying search keyword(s) to get the following details:  
     
   `id`  
   `title`  
@@ -21,15 +24,15 @@ At this time this youtube scraper allow you to:
   `subscribers`  
   `details`  
   
-- Limit the videos returned by upload date by entering friendly parameters like "2 weeks ago"  
-- Limit the overall number of videos returned by entering a number like "50" videos maximum  
+- Limit the videos returned by upload date by entering date in an easy-read format e.g "2 weeks ago"  
+- Limit the overall number of videos returned by entering a number e.g "50" videos maximum  
 
-Features **not** available in this scraper:
+Features **not** available in this actor:
 - Scraping comments on a video
 - Scraping channel details
 
 ## Input parameters
-The input of this scraper should be JSON specifying what to search for on Youtube.  
+The input of this actor should be JSON specifying what to search for on Youtube.  
 If this actor is run on the Apify platform a user friendly graphical interface will be provided for you to configure the scraper before running it.  
 This actor recognizes the following fields:  
 
@@ -67,13 +70,21 @@ If an error occurs there will be a detail error log in the run console as well a
   
 ## Scraper output
 
-As the scraper runs, the actor stores results into a dataset. Each item is a separate item in the dataset.
+As the actor runs, the actor stores results into a dataset. Each Youtube video becomes a separate item in the dataset (example below).
 
-The actor converts Youtubes data into a form that can be analysed and compared. E.g `1.2M` likes is converted into `1200000` likes.  
+The actor converts Youtube data into a form that can be compared and analyzed as exemplified in the table below:  
 
-The output can be manipulated in any language (Python, PHP, Node JS/NPM). See the FAQ or <a href="https://www.apify.com/docs/api" target="blank">our API reference</a> to learn more about getting results from this Youtube actor.
+| # Likes | Output |  
+| ----- | ---- |  
+| 1.2M | 1200000 |  
+| 1.65K | 1650 |
+| 1.65M | 1650000 |    
 
-Here is a sample of the output (with long lines shortened):  
+The output can then be easily manipulated in any language (Python, PHP, Node JS/NPM).  
+
+See the <a href="https://www.apify.com/docs/api" target="blank">Apify API reference</a> to learn more about getting results from this Youtube actor.
+
+Here is a sample of the output (long lines shortened):  
   
 ```json
 {
@@ -93,7 +104,23 @@ Here is a sample of the output (with long lines shortened):
   
 ## Notes for developers
 
+Typical usage on Apify platform is shown below:  
+
+| Resource | Average | Max |  
+| ----- | ---- | ----------- |  
+| Memory | 459.6 MB | 894.7 MB |  
+| CPU | 64% | 253% |  
+
 This actor manipulates the mouse and keyboard like a real user would.  
 
-The scraper uses xpaths to find elements, all xpaths are stored in one file for easy update in case Youtube changes its code.  
+It uses xPaths to find DOM elements; they are all stored in one file for easy update.  
 
+All xPath variables and functions end in 'Xp'.  
+
+The logic of the actor makes use of Youtube's own date filters because:  
+ - Youtube does not by default show videos in chronological order.
+   The order of videos is related to the number of likes, subscribers, etc.  
+ - There is no way to give Youtube an exact cutoff date (unless you use Youtube's developer API) 
+ - Youtube has a separate filter that toggles sorting by date  
+
+So when a user requests videos from "5 days ago", we apply Youtube's "This week" filter as well as the "Sort by Upload date" filter.
