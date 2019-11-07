@@ -1,0 +1,37 @@
+{
+    "name": "actor-youtube-scraper",
+    "version": "0.0.1",
+    "description": "Actor to scrape youtube videos",
+    "keywords": [
+        "apify",
+        "apifier",
+        "crawler",
+        "search",
+        "youtube",
+        "pupetteer"
+    ],
+    "dependencies": {
+        "apify": "^0.16.0",
+        "moment": "^2.24.0"
+    },
+    "devDependencies": {
+        "@apify/eslint-config": "0.0.3",
+        "@types/puppeteer": "^1.20.2"
+    },
+    "scripts": {
+        "start": "node src/main.js"
+    },
+    "author": "bernardo@sonkomail.com",
+    "contributors": [
+        "Bernard Okoth <bernardo@sonkomail.com>"
+    ],
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/bernardro/actor-youtube-scraper",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bernardro/actor-youtube-scraper"
+    },
+    "bugs": {
+        "url": "https://github.com/bernardro/actor-youtube-scraper/issues"
+    }
+}

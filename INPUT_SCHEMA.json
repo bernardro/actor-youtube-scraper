@@ -1,0 +1,66 @@
+{
+    "title": "Input schema for the youtube-search-scraper actor",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "searchKeywords": {
+            "title": "Search keywords",
+            "type": "string",
+            "description": "What to search Youtube for",
+            "editor": "textfield",
+            "minLength": 3,
+            "maxLength" : 250,
+            "nullable": false
+        },
+        "maxResults": {
+            "title": "Maximum search results",
+            "type": "integer",
+            "description": "Limit number of videos to crawl; <br />'-1' means 'No limit'",
+            "minimum": -1,
+            "maximum": 999,
+            "default": 50,
+            "unit": "Videos",
+            "nullable": false
+        },
+        "postsFromDate": {
+            "title": "Videos from date",
+            "type": "string",
+            "editor": "textfield",
+            "description": "How far back in history to go e.g <br />30 minutes ago <br />1 week ago <br />5 months ago <br />4 years ago, etc.",
+            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *",
+            "minLength": 0,
+            "maxLength": 16,
+            "prefill": "2 years ago",
+            "nullable": true
+        },
+        "startUrl": {
+            "title": "Start URL",
+            "type": "string",
+            "description": "Youtube URL to start with",
+            "prefill": "https://www.youtube.com/",
+            "editor": "textfield",
+            "nullable": false,
+            "sectionCaption": "Advanced options"
+        },
+        "proxyConfiguration": {
+            "title": "Proxy configuration",
+            "type": "object",
+            "editor": "proxy",
+            "description": "The best option is usually Automatic proxy. But you can also use your own proxies or no proxy",
+            "prefill": {
+                "useApifyProxy": true
+            }
+        },
+        "verboseLog": {
+            "title": "Verbose log",
+            "type": "boolean",
+            "description": "Debug messages will be included in the log.",
+            "default": true
+        }
+    },
+    "required": [
+        "startUrl",
+        "searchKeywords",
+        "maxResults"
+    ]
+}

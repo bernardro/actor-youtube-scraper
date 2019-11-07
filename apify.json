@@ -1,0 +1,9 @@
+{
+	"name": "youtube-search-scraper",
+	"version": "0.0",
+	"buildTag": "latest",
+	"env": {
+		"proxyPswd": "@proxyPswd"
+	},
+	"template": "puppeteer_crawler"
+}
