@@ -199,7 +199,7 @@ exports.hndlPptGoto = async ({ page, request }) => {
         const resType = req.resourceType();
         if (resType in CONSTS.MEDIA_TYPES) {
             // req.respond(exports.getRandImgResponse(resType));
-            return request.abort();
+            // return request.abort();
         }
         req.continue();
     });
