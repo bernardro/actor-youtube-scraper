@@ -73,17 +73,19 @@ The actor converts Youtubes data into a form that can be analysed and compared. 
 
 The output can be manipulated in any language (Python, PHP, Node JS/NPM). See the FAQ or <a href="https://www.apify.com/docs/api" target="blank">our API reference</a> to learn more about getting results from this Youtube actor.
 
-Here is a sample of the output:  
+Here is a sample of the output (with long lines shortened):  
 ```json
 {
-    "searchKeywords": "Terminator dark fate",
-    "maxResults": 30,
-    "postsFromDate": "2 days ago",
-    "startUrl": "https://www.youtube.com",
-    "proxyConfiguration": {
-        "useApifyProxy": true,
-        "apifyProxyGroups": ["BUYPROXIES63748","BUYPROXIES63811","BUYPROXIES94952","SHADER"]
-    },
-    "verboseLog": true
+  "title": "Terminator: Dark Fate - Official Trailer (2019) - Paramount Pictures",
+  "id": "oxy8udgWRmo",
+  "url": "https://www.youtube.com/watch?v=oxy8udgWRmo",
+  "viewCount": 15432,
+  "date": "2019-08-29T00:00:00+00:00",
+  "likes": 121000,
+  "dislikes": 23000,
+  "channelName": "Paramount Pictures",
+  "channelUrl": "https://www.youtube.com/channel/UCF9imwPMSGz4Vq1NiTWCC7g",
+  "numberOfSubscribers": 1660000,
+  "details": "Welcome to the day after <a class=\"yt-simple-endpoint style-sco..."
 }
 ```
