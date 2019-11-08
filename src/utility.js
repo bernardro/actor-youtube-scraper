@@ -8,22 +8,30 @@ const CONSTS = require('./consts');
 exports.handleMaster = async (page, requestQueue, input) => {
     const { searchBox, toggleFilterMenu, filterBtnsXp, youtubeVideosXp, urlXp } = CONSTS.SELECTORS.SEARCH;
 
-    // pause like real user
+    log.debug('waiting for input box...');
     const searchBxElem = await page.waitForSelector(searchBox, { visible: true });
+    if(searchBxElem) {
+        log.debug(`searchBoxInput found at ${searchBox}`);
+    }
 
     // search for input box and move mouse over it
     await page.tap(searchBox);
 
-    // perform a search
+    log.info('entering search text...');
     await exports.doTextInput(page, input.searchKeywords);
 
     // submit search and wait for results page (and filter button) to load
+    log.info('submit search...');
     await page.keyboard.press('Enter', { delay: exports.getDelayMs(CONSTS.DELAY.KEY_PRESS) });
 
     // pause while page reloads
     await sleep(exports.getDelayMs(CONSTS.DELAY.HUMAN_PAUSE));
 
+    log.debug('waiting for filter menu button...');
     const filterMenuElem = await page.waitForSelector(toggleFilterMenu, { visible: true });
+    if(filterMenuElem) {
+        log.debug(`expandFilterMenuBtn found at ${toggleFilterMenu}`);
+    }
 
     // for every filter:
     // click on filter menu to expand it and
@@ -44,10 +52,10 @@ exports.handleMaster = async (page, requestQueue, input) => {
         ]);
     }
 
-    // search done and filters set
+    log.info('search done and filters set...');
     const { maxResults } = input;
 
-    // wait until at least one youtube video loads
+    log.debug('waiting for first video to load...');
     await page.waitForXPath(youtubeVideosXp, { visible: true });
 
     // prepare to infinite scroll manually
@@ -55,7 +63,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
     // see https://github.com/apifytech/apify-js/issues/503
     await exports.moveMouseToCenterScreen(page, CONSTS.MOUSE_STEPS);
 
-    // start infinite scrolling downwards to load all the videos
+    log.info('start infinite scrolling downwards to load all the videos...');
     const loadedVideos = await page.$x(youtubeVideosXp);
     const startingNumVideos = loadedVideos.length;
 
@@ -81,7 +89,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
         latestNumVideos = latestLoadedVideos.length;
     } while ((latestNumVideos > startingNumVideos) && (latestNumVideos < maxResults));
 
-    // enqueue video links - up to maxResults
+    log.info('infinite scroll done, enqueueing video links...');
     const maxVideos = exports.getMaxVideos(latestNumVideos, maxResults);
     for (let i = 0; i < maxVideos; i++) {
         const latestVideoUrls = await latestLoadedVideos[i].$x(urlXp);
