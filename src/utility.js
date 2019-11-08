@@ -10,7 +10,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
 
     log.debug('waiting for input box...');
     const searchBxElem = await page.waitForSelector(searchBox, { visible: true });
-    if(searchBxElem) {
+    if (searchBxElem) {
         log.debug(`searchBoxInput found at ${searchBox}`);
     }
 
@@ -29,13 +29,14 @@ exports.handleMaster = async (page, requestQueue, input) => {
 
     log.debug('waiting for filter menu button...');
     const filterMenuElem = await page.waitForSelector(toggleFilterMenu, { visible: true });
-    if(filterMenuElem) {
+    if (filterMenuElem) {
         log.debug(`expandFilterMenuBtn found at ${toggleFilterMenu}`);
     }
 
     // for every filter:
-    // click on filter menu to expand it and
-    // click on the filter button to add the filter
+    // - click on filter menu to expand it
+    // - click on specific filter button to add the filter
+    log.info('setting filters...');
     const filtersToAdd = exports.getYoutubeDateFilters(input.postsFromDate);
     for (const filterLabel of filtersToAdd) {
         page.tap(toggleFilterMenu);
@@ -52,10 +53,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
         ]);
     }
 
-    log.info('search done and filters set...');
-    const { maxResults } = input;
-
-    log.debug('waiting for first video to load...');
+    log.debug('waiting for first video to load after filtering...');
     await page.waitForXPath(youtubeVideosXp, { visible: true });
 
     // prepare to infinite scroll manually
@@ -72,6 +70,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
         throw new Error(`The keywords '${input.searchKeywords} return no youtube videos, try a different search`);
     }
 
+    const { maxResults } = input;
     let latestNumVideos = startingNumVideos;
     let latestLoadedVideos = [];
     do {
@@ -98,44 +97,45 @@ exports.handleMaster = async (page, requestQueue, input) => {
     }
 };
 
-exports.handleDetail = async (page, request, input) => {
+exports.handleDetail = async (page, request) => {
     const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp, channelXp, subscribersXp, descriptionXp } = CONSTS.SELECTORS.VIDEO;
 
     log.info(`handling detail url ${request.url}`);
+
     const videoId = exports.getVideoId(request.url);
     log.debug(`got videoId as ${videoId}`);
 
-    log.debug(`searching for titleXp at ${titleXp}`);
+    log.debug(`searching for title at ${titleXp}`);
     const title = await exports.getDataFromXpath(page, titleXp, 'innerHTML');
     log.debug(`got title as ${title}`);
 
-    log.debug(`searching for viewCountXp at ${viewCountXp}`);
+    log.debug(`searching for viewCount at ${viewCountXp}`);
     const viewCountStr = await exports.getDataFromXpath(page, viewCountXp, 'innerHTML');
     const viewCount = exports.unformatNumbers(viewCountStr);
     log.debug(`got viewCount as ${viewCount}`);
 
-    log.debug(`searching for uploadDateXp at ${uploadDateXp}`);
+    log.debug(`searching for uploadDate at ${uploadDateXp}`);
     const uploadDateStr = await exports.getDataFromXpath(page, uploadDateXp, 'innerHTML');
     const uploadDate = moment(uploadDateStr, 'MMM DD, YYYY').format();
     log.debug(`got uploadDate as ${uploadDate}`);
 
-    log.debug(`searching for likesXp at ${likesXp}`);
+    log.debug(`searching for likesCount at ${likesXp}`);
     const likesStr = await exports.getDataFromXpath(page, likesXp, 'innerHTML');
     const likesCount = exports.unformatNumbers(likesStr);
     log.debug(`got likesCount as ${likesCount}`);
 
-    log.debug(`searching for dislikesXp at ${dislikesXp}`);
+    log.debug(`searching for dislikesCount at ${dislikesXp}`);
     const dislikesStr = await exports.getDataFromXpath(page, dislikesXp, 'innerHTML');
     const dislikesCount = exports.unformatNumbers(dislikesStr);
     log.debug(`got dislikesCount as ${dislikesCount}`);
 
-    log.debug(`searching for channelXp at ${channelXp}`);
+    log.debug(`searching for channel details at ${channelXp}`);
     const channelName = await exports.getDataFromXpath(page, channelXp, 'innerHTML');
     log.debug(`got channelName as ${channelName}`);
     const channelUrl = await exports.getDataFromXpath(page, channelXp, 'href');
     log.debug(`got channelUrl as ${channelUrl}`);
 
-    log.debug(`searching for subscribersXp at ${subscribersXp}`);
+    log.debug(`searching for numberOfSubscribers at ${subscribersXp}`);
     const subscribersStr = await exports.getDataFromXpath(page, subscribersXp, 'innerHTML');
     const numberOfSubscribers = exports.unformatNumbers(subscribersStr.replace(/subscribers/ig, '').trim());
     log.debug(`got numberOfSubscribers as ${numberOfSubscribers}`);
@@ -193,14 +193,12 @@ exports.unformatNumbers = (numStr) => {
 };
 
 exports.hndlPptGoto = async ({ page, request }) => {
-    // await page.setRequestInterception(true);
-    // page.on('request', (req) => {
     await puppeteer.addInterceptRequestHandler(page, (req) => {
         const resType = req.resourceType();
         if (resType in CONSTS.MEDIA_TYPES) {
-            // req.respond(exports.getRandImgResponse(resType));
-            // return request.abort();
+            return request.abort();
         }
+
         req.continue();
     });
 
@@ -220,7 +218,7 @@ exports.hndlFaildReqs = async ({ request }) => {
 
 exports.moveMouseToElemXp = async (pptPage, xPath, mouseMoveSteps, name) => {
     const targetElem = await pptPage.waitForXPath(xPath, { visible: true });
-    if(targetElem.length > 0) {
+    if (targetElem.length > 0) {
         log.debug(`${name} found at ${xPath}`);
     }
 
@@ -274,10 +272,10 @@ exports.getCutoffDate = (historyString) => {
 exports.isDateInputValid = (postsFromDate) => {
     const matches = postsFromDate.match(/(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *$/ig);
     return !!matches;
-}
+};
 
 exports.getYoutubeDateFilters = (postsFromDate) => {
-    if(!exports.isDateInputValid(postsFromDate)) {
+    if (!exports.isDateInputValid(postsFromDate)) {
         return [];
     }
 

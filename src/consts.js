@@ -7,12 +7,14 @@ exports.DELAY = {
 };
 
 exports.MOUSE_STEPS = 5;
-exports.MEDIA_TYPES = ['.jpg', '.jpeg', '.png', '.svg', '.gif', '.webp', '.webm', '.ico', '.woff', '.eot'];
+
+// 'document', 'image', 'xhr', 'script', 'stylesheet', 'font', 'other', 'manifest'
+exports.MEDIA_TYPES = ['image'];
 
 exports.SELECTORS = {
     SEARCH: {
-        searchBox: "input#search",
-        toggleFilterMenu: "ytd-toggle-button-renderer a #button",
+        searchBox: 'input#search',
+        toggleFilterMenu: 'ytd-toggle-button-renderer a #button',
         filterBtnsXp: '//ytd-search-filter-renderer/a/div/yt-formatted-string',
         youtubeVideosXp: '//ytd-video-renderer',
         urlXp: "./div/ytd-thumbnail/a[@id='thumbnail'][1]",

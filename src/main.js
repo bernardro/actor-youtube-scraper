@@ -22,10 +22,10 @@ Apify.main(async () => {
     pptrLaunchOpts.stealth = true;
     pptrLaunchOpts.useChrome = true;
 
+    const requestQueue = await Apify.openRequestQueue();
+
     // crawler options - puppeteer
     const pptrCrawlerOpts = {};
-
-    const requestQueue = await Apify.openRequestQueue();
     pptrCrawlerOpts.requestQueue = requestQueue;
     pptrCrawlerOpts.launchPuppeteerOptions = pptrLaunchOpts;
 
@@ -43,7 +43,7 @@ Apify.main(async () => {
                 break;
             }
             case 'DETAIL': {
-                await utils.handleDetail(page, request, input);
+                await utils.handleDetail(page, request);
                 break;
             }
             default: throw new Error('Unknown request label in handlePageFunction');
