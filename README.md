@@ -39,9 +39,9 @@ This actor recognizes the following fields:
 | Field | Type | Description |  
 | ----- | ---- | ----------- |  
 | searchKeywords | String | (required) Query to search Youtube for |  
-| maxResults | Integer | (required) How many videos should be loaded from each search, default is 50, maximum is 999 |  
-| postsFromDate | String | (optional) How far back in history to go, e.g "2 years ago" or "5 months ago". You can use *minutes*,*hours*,*days*,*weeks*,*months* and *years* |  
-| startUrl | String | (optional) Starting Youtube URLs, default is `https://youtube.com` |  
+| maxResults | Integer | (optional) How many videos should be loaded from each search, default is 50, maximum is 999 |  
+| postsFromDate | String | (optional) How far back in history to go, default is "5 years ago". You can also use *minutes*,*hours*,*days*,*weeks* and *months* |  
+| startUrl | String | (required) Starting Youtube URLs, default is `https://youtube.com` |  
 | proxyConfiguration | Object | Proxy configuration |  
 | verboseLog | Boolean | Whether to turn on verbose logging |  
   
