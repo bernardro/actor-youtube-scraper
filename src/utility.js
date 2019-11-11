@@ -70,7 +70,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
         throw new Error(`The keywords '${input.searchKeywords} return no youtube videos, try a different search`);
     }
 
-    const { maxResults } = input;
+    const maxResults = (input.maxResults && input.maxResults > 0) ? input.maxResults : 999;
     let latestNumVideos = startingNumVideos;
     let latestLoadedVideos = [];
     do {

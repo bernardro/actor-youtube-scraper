@@ -15,23 +15,23 @@
         "maxResults": {
             "title": "Maximum search results",
             "type": "integer",
-            "description": "Limit number of videos to crawl; <br />'-1' means 'No limit'",
-            "minimum": -1,
+            "description": "Limit number of videos to crawl; <br />for 'No limits' empty the field",
+            "minimum": 1,
             "maximum": 999,
             "default": 50,
             "unit": "Videos",
-            "nullable": false
+            "nullable": true
         },
         "postsFromDate": {
             "title": "Videos from date",
             "type": "string",
             "editor": "textfield",
-            "description": "How far back in history to go e.g <br />30 minutes ago <br />1 week ago <br />5 months ago <br />4 years ago, etc.",
+            "description": "How far back in history to go e.g <br />30 minutes ago <br />1 week ago <br />5 months ago <br />4 years ago, etc.<br />for 'No limits' empty the field",
             "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *$",
             "minLength": 0,
             "maxLength": 16,
             "prefill": "5 years ago",
-            "nullable": false
+            "nullable": true
         },
         "startUrl": {
             "title": "Start URL",
@@ -60,8 +60,6 @@
     },
     "required": [
         "startUrl",
-        "searchKeywords",
-        "maxResults",
-        "postsFromDate"
+        "searchKeywords"
     ]
 }
