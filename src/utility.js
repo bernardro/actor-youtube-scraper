@@ -212,7 +212,7 @@ exports.hndlPptLnch = (launchOpts) => {
 exports.hndlFaildReqs = async ({ request }) => {
     Apify.utils.log.error(`Request ${request.url} failed too many times`);
     await Apify.pushData({
-        '#debug': Apify.exports.createRequestDebugInfo(request),
+        '#debug': Apify.utils.createRequestDebugInfo(request),
     });
 };
 
