@@ -270,8 +270,12 @@ exports.getCutoffDate = (historyString) => {
 };
 
 exports.isDateInputValid = (postsFromDate) => {
-    const matches = postsFromDate.match(/(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *$/ig);
-    return !!matches;
+    if (postsFromDate) {
+        const matches = postsFromDate.match(/(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *$/ig);
+        return !!matches;
+    }
+
+    return false;
 };
 
 exports.getYoutubeDateFilters = (postsFromDate) => {
