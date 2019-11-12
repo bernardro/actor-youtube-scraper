@@ -6,7 +6,7 @@ const { log, sleep, puppeteer } = Apify.utils;
 const CONSTS = require('./consts');
 
 exports.handleMaster = async (page, requestQueue, input) => {
-    const { searchBox, toggleFilterMenu, filterBtnsXp, youtubeVideosXp, urlXp } = CONSTS.SELECTORS.SEARCH;
+    const { searchBox, toggleFilterMenu, filterBtnsXp } = CONSTS.SELECTORS.SEARCH;
 
     log.debug('waiting for input box...');
     const searchBxElem = await page.waitForSelector(searchBox, { visible: true });
@@ -54,6 +54,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
     }
 
     log.debug('waiting for first video to load after filtering...');
+    const { youtubeVideosXp, urlXp } = CONSTS.SELECTORS.SEARCH;
     await page.waitForXPath(youtubeVideosXp, { visible: true });
 
     // prepare to infinite scroll manually

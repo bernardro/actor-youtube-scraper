@@ -16,7 +16,7 @@ exports.SELECTORS = {
         searchBox: 'input#search',
         toggleFilterMenu: 'ytd-toggle-button-renderer a #button',
         filterBtnsXp: '//ytd-search-filter-renderer/a/div/yt-formatted-string',
-        youtubeVideosXp: '//ytd-video-renderer',
+        youtubeVideosXp: "//*[@id='contents']/ytd-video-renderer",
         urlXp: "./div/ytd-thumbnail/a[@id='thumbnail'][1]",
     },
     VIDEO: {
