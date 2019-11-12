@@ -3,7 +3,7 @@ exports.DELAY = {
     BTWN_KEY_PRESS: { min: 45, max: 375 },
     MOUSE_CLICK: { min: 40, max: 150 },
     HUMAN_PAUSE: { min: 300, max: 800 },
-    START_LOADING_MORE_VIDEOS: 300,
+    START_LOADING_MORE_VIDEOS: 3000,
 };
 
 exports.MOUSE_STEPS = 5;

@@ -53,7 +53,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
         }
     }
 
-    log.debug('waiting for first video to load after filtering...');
+    log.debug('waiting for first video to load...');
     const { youtubeVideosXp, urlXp } = CONSTS.SELECTORS.SEARCH;
     await page.waitForXPath(youtubeVideosXp, { visible: true });
 
@@ -63,39 +63,65 @@ exports.handleMaster = async (page, requestQueue, input) => {
     await exports.moveMouseToCenterScreen(page, CONSTS.MOUSE_STEPS);
 
     log.info('start infinite scrolling downwards to load all the videos...');
-    const loadedVideos = await page.$x(youtubeVideosXp);
-    const startingNumVideos = loadedVideos.length;
+    let queuedVideos = await page.$x(youtubeVideosXp);
 
     // keep scrolling until no more videos or max limit reached
-    if (startingNumVideos === 0) {
+    if (queuedVideos.length === 0) {
         throw new Error(`The keywords '${input.searchKeywords} return no youtube videos, try a different search`);
     }
 
-    const maxResults = (input.maxResults && input.maxResults > 0) ? input.maxResults : 999;
-    let latestNumVideos = startingNumVideos;
-    let latestLoadedVideos = [];
+    const maxRequested = (input.maxResults && input.maxResults > 0) ? input.maxResults : 999;
+    let userRequestFilled = false;
+
+    let maxInQueue = 0;
+    let videoIndex = 0;
+
+    let videosPending = maxInQueue < queuedVideos.length;
+    maxInQueue = queuedVideos.length;
     do {
-        const lastVideoXp = `${youtubeVideosXp}[${latestNumVideos}]`;
+        userRequestFilled = await exports.loadVideosUrls(requestQueue, page, youtubeVideosXp, urlXp, maxRequested, videoIndex, maxInQueue);
 
-        await page.waitForXPath(lastVideoXp, { visible: true });
-        const lastVideo = await page.$x(lastVideoXp);
-        await lastVideo[0].hover();
-
-        // we have scrolled to last video
-        // pause for youtube to *start* loading more videos
+        // wait for more videos to *start* loading
         await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
 
-        latestLoadedVideos = await page.$x(youtubeVideosXp);
-        latestNumVideos = latestLoadedVideos.length;
-    } while ((latestNumVideos > startingNumVideos) && (latestNumVideos < maxResults));
+        // check how many additional videos have been loaded since
+        queuedVideos = await page.$x(youtubeVideosXp);
+        videosPending = maxInQueue < queuedVideos.length;
 
-    log.info('infinite scroll done, enqueueing video links...');
-    const maxVideos = exports.getMaxVideos(latestNumVideos, maxResults);
-    for (let i = 0; i < maxVideos; i++) {
-        const latestVideoUrls = await latestLoadedVideos[i].$x(urlXp);
-        const url = await page.evaluate(el => el.href, latestVideoUrls[0]);
+        // update variables
+        videoIndex = maxInQueue;
+        maxInQueue = queuedVideos.length;
+    } while (videosPending && !userRequestFilled);
+
+    log.info('infinite scroll done...');
+};
+
+exports.loadVideosUrls = async (requestQueue, page, youtubeVideosXp, urlXp, maxRequested, videoIndx, maxInQueue) => {
+    let userRequestFilled = videoIndx >= maxRequested;
+    let queueLimitReached = videoIndx >= maxInQueue;
+
+    while (!queueLimitReached && !userRequestFilled) {
+        const videoXp = `${youtubeVideosXp}[${videoIndx + 1}]`;
+        await page.waitForXPath(videoXp, { visible: true });
+        const videos = await page.$x(videoXp);
+        await videos[0].hover();
+
+        if (videos.length > 1) {
+            log.debug(`xPath for videoXp [${videoXp}] returns more than one hit, hovering last one...`);
+            await videos[videos.length - 1].hover();
+        }
+
+        const urls = await videos[0].$x(urlXp);
+        const url = await page.evaluate(el => el.href, urls[0]);
         await requestQueue.addRequest({ url, userData: { label: 'DETAIL' } });
+
+        videoIndx++;
+
+        userRequestFilled = videoIndx >= maxRequested;
+        queueLimitReached = videoIndx >= maxInQueue;
     }
+
+    return userRequestFilled;
 };
 
 exports.handleDetail = async (page, request) => {
