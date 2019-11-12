@@ -31,26 +31,26 @@ exports.handleMaster = async (page, requestQueue, input) => {
     const filterMenuElem = await page.waitForSelector(toggleFilterMenu, { visible: true });
     if (filterMenuElem) {
         log.debug(`expandFilterMenuBtn found at ${toggleFilterMenu}`);
-    }
 
-    // for every filter:
-    // - click on filter menu to expand it
-    // - click on specific filter button to add the filter
-    log.info('setting filters...');
-    const filtersToAdd = exports.getYoutubeDateFilters(input.postsFromDate);
-    for (const filterLabel of filtersToAdd) {
-        page.tap(toggleFilterMenu);
+        // for every filter:
+        // - click on filter menu to expand it
+        // - click on specific filter button to add the filter
+        log.info('setting filters...');
+        const filtersToAdd = exports.getYoutubeDateFilters(input.postsFromDate);
+        for (const filterLabel of filtersToAdd) {
+            page.tap(toggleFilterMenu);
 
-        // wait for filter panel to show
-        await page.waitForXPath(filterBtnsXp, { visible: true });
+            // wait for filter panel to show
+            await page.waitForXPath(filterBtnsXp, { visible: true });
 
-        const targetFilterXp = `${filterBtnsXp}[text()='${filterLabel}']`;
-        await exports.moveMouseToElemXp(page, targetFilterXp, CONSTS.MOUSE_STEPS, 'Filter button');
+            const targetFilterXp = `${filterBtnsXp}[text()='${filterLabel}']`;
+            await exports.moveMouseToElemXp(page, targetFilterXp, CONSTS.MOUSE_STEPS, 'Filter button');
 
-        await Promise.all([
-            exports.clickHoveredElem(page, targetFilterXp),
-            page.waitForNavigation({ waitUntil: ['domcontentloaded'] }),
-        ]);
+            await Promise.all([
+                exports.clickHoveredElem(page, targetFilterXp),
+                page.waitForNavigation({ waitUntil: ['domcontentloaded'] }),
+            ]);
+        }
     }
 
     log.debug('waiting for first video to load after filtering...');
