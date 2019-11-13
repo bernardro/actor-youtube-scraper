@@ -233,6 +233,7 @@ exports.hndlPptGoto = async ({ page, request }) => {
 };
 
 exports.hndlPptLnch = (launchOpts) => {
+    launchOpts.apifyProxySession = `sesn_${Math.floor(Math.random() * 100000)}`;
     return Apify.launchPuppeteer(launchOpts);
 };
 
