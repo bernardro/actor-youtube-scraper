@@ -38,6 +38,7 @@
             "type": "string",
             "description": "Youtube URL to start with",
             "prefill": "https://www.youtube.com/",
+            "default": "https://www.youtube.com/",
             "editor": "textfield",
             "nullable": false,
             "sectionCaption": "Advanced options"
