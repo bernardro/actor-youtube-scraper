@@ -1,6 +1,7 @@
 const Apify = require('apify');
 
 const utils = require('./utility');
+const crawler = require('./crawler_utils');
 
 const { log } = Apify.utils;
 
@@ -29,9 +30,9 @@ Apify.main(async () => {
     pptrCrawlerOpts.requestQueue = requestQueue;
     pptrCrawlerOpts.launchPuppeteerOptions = pptrLaunchOpts;
 
-    pptrCrawlerOpts.launchPuppeteerFunction = utils.hndlPptLnch;
-    pptrCrawlerOpts.gotoFunction = utils.hndlPptGoto;
-    pptrCrawlerOpts.handleFailedRequestFunction = utils.hndlFaildReqs;
+    pptrCrawlerOpts.launchPuppeteerFunction = crawler.hndlPptLnch;
+    pptrCrawlerOpts.gotoFunction = crawler.hndlPptGoto;
+    pptrCrawlerOpts.handleFailedRequestFunction = crawler.hndlFaildReqs;
     pptrCrawlerOpts.handlePageFunction = async ({ page, request }) => {
         if (utils.isErrorStatusCode(request.statusCode)) {
             throw new Error(`Request error status code: ${request.statusCode} msg: ${request.statusMessage}`);
@@ -39,11 +40,11 @@ Apify.main(async () => {
 
         switch (request.userData.label) {
             case 'MASTER': {
-                await utils.handleMaster(page, requestQueue, input);
+                await crawler.handleMaster(page, requestQueue, input);
                 break;
             }
             case 'DETAIL': {
-                await utils.handleDetail(page, request);
+                await crawler.handleDetail(page, request);
                 break;
             }
             default: throw new Error('Unknown request label in handlePageFunction');
