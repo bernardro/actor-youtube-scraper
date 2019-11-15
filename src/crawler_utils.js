@@ -158,15 +158,7 @@ exports.handleDetail = async (page, request) => {
 };
 
 exports.hndlPptGoto = async ({ page, request }) => {
-    await puppeteer.addInterceptRequestHandler(page, (req) => {
-        const resType = req.resourceType();
-        if (resType in CONSTS.MEDIA_TYPES) {
-            return request.abort();
-        }
-
-        req.continue();
-    });
-
+    await puppeteer.blockRequests(page);
     return page.goto(request.url, { waitUntil: 'domcontentloaded' });
 };
 
