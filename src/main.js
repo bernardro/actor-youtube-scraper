@@ -16,7 +16,7 @@ Apify.main(async () => {
     }
 
     // proxy settings
-    const proxyConfig = { ...input.proxyConfiguration };
+    const proxyConfig = { useApifyProxy: true, ...input.proxyConfiguration };
 
     // launch options - puppeteer
     const pptrLaunchOpts = { ...proxyConfig };
