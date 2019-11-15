@@ -104,12 +104,12 @@ Here is a sample of the output (long lines shortened):
   
 ## Notes for developers
 
-Typical usage on Apify platform is shown below:  
+Typical usage on Apify platform using 4096MB for memory is shown below:  
 
 | Resource | Average | Max |  
 | ----- | ---- | ----------- |  
-| Memory | 459.6 MB | 894.7 MB |  
-| CPU | 64% | 253% |  
+| Memory | 480.3 MB | 1.1 GB |  
+| CPU | 53% | 140% |  
 
 This actor manipulates the mouse and keyboard like a real user would.  
 
