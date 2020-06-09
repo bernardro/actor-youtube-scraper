@@ -17,7 +17,7 @@
             "type": "integer",
             "description": "Limit number of videos to crawl; <br />for 'No limits' empty the field",
             "minimum": 1,
-            "maximum": 999,
+            "maximum": 999999,
             "default": 50,
             "unit": "Videos",
             "nullable": true
