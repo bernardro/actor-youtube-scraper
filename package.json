@@ -11,16 +11,16 @@
         "pupetteer"
     ],
     "dependencies": {
-        "apify": "^0.16.0",
-        "moment": "^2.24.0"
+        "apify": "^0.21.0",
+        "moment": "^2.26.0"
     },
     "devDependencies": {
-        "@apify/eslint-config": "0.0.3",
-        "@types/puppeteer": "^1.20.2",
+        "@apify/eslint-config": "0.1.0",
+        "@types/puppeteer": "^3.0.0",
         "chai": "^4.2.0",
-        "eslint": "^6.5.1",
-        "mocha": "^6.2.2",
-        "sinon": "^7.5.0"
+        "eslint": "^7.2.0",
+        "mocha": "^8.0.1",
+        "sinon": "^9.0.2"
     },
     "scripts": {
         "start": "node src/main.js",
