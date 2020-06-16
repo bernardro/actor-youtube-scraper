@@ -112,7 +112,7 @@ exports.handleDetail = async (page, request) => {
     log.debug(`searching for viewCount at ${viewCountXp}`);
     const viewCountStr = await utils.getDataFromXpath(page, viewCountXp, 'innerHTML');
     const viewCount = utils.unformatNumbers(viewCountStr);
-    log.debug(`got viewCount as ${viewCount}`);
+    log.debug(`got viewCount as ${viewCountStr} -> ${viewCount}`);
 
     log.debug(`searching for uploadDate at ${uploadDateXp}`);
     const uploadDateStr = await utils.getDataFromXpath(page, uploadDateXp, 'innerHTML');

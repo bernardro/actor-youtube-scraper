@@ -42,7 +42,7 @@ exports.getDataFromXpath = async (page, xPath, attrib) => {
 exports.unformatNumbers = (numStr) => {
     const numberMatch = numStr.replace(/[^0-9,.]/ig, '');
     if (numberMatch) {
-        const number = parseFloat(numberMatch.replace(',', ''));
+        const number = parseFloat(numberMatch.replace(/,/g, ''));
         const multiplierMatch = numStr.match(/(?<=[0-9 ])[mkb]/ig);
 
         if (multiplierMatch) {
