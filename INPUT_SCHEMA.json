@@ -58,9 +58,5 @@
             "description": "Debug messages will be included in the log.",
             "default": true
         }
-    },
-    "required": [
-        "startUrl",
-        "searchKeywords"
-    ]
+    }
 }
