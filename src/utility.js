@@ -39,6 +39,11 @@ exports.getDataFromXpath = async (page, xPath, attrib) => {
     return page.evaluate((el, key) => el[key], xElement[0], attrib);
 };
 
+exports.getDataFromSelector = async (page, slctr, attrib) => {
+    const slctrElem = await page.waitForSelector(slctr, { visible: true });
+    return page.evaluate((el, key) => el[key], slctrElem, attrib);
+};
+
 exports.unformatNumbers = (numStr) => {
     const numberMatch = numStr.replace(/[^0-9,.]/ig, '');
     if (numberMatch) {

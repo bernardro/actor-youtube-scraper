@@ -98,7 +98,7 @@ exports.handleMaster = async (page, requestQueue, input) => {
 };
 
 exports.handleDetail = async (page, request) => {
-    const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp, channelXp, subscribersXp, descriptionXp } = CONSTS.SELECTORS.VIDEO;
+    const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp, channelXp, subscribersXp, descriptionXp, durationSlctr } = CONSTS.SELECTORS.VIDEO;
 
     log.info(`handling detail url ${request.url}`);
 
@@ -140,6 +140,10 @@ exports.handleDetail = async (page, request) => {
     const numberOfSubscribers = utils.unformatNumbers(subscribersStr.replace(/subscribers/ig, '').trim());
     log.debug(`got numberOfSubscribers as ${numberOfSubscribers}`);
 
+    log.debug(`searching for videoDuration at ${durationSlctr}`);
+    const durationStr = await utils.getDataFromSelector(page, durationSlctr, 'innerHTML');
+    log.debug(`got videoDuration as ${durationStr}`);
+
     const description = await utils.getDataFromXpath(page, descriptionXp, 'innerHTML');
 
     await Apify.pushData({
@@ -153,6 +157,7 @@ exports.handleDetail = async (page, request) => {
         channelName,
         channelUrl,
         numberOfSubscribers,
+        duration: durationStr,
         details: description,
     });
 };

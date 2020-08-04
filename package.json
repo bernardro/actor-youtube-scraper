@@ -11,7 +11,7 @@
         "pupetteer"
     ],
     "dependencies": {
-        "apify": "^0.21.0",
+        "apify": "^0.21.3",
         "moment": "^2.26.0"
     },
     "devDependencies": {
@@ -24,7 +24,8 @@
     },
     "scripts": {
         "start": "node src/main.js",
-        "test": "mocha test/utility_spec.js"
+        "test": "mocha test/utility_spec.js",
+        "apify": "apify run"
     },
     "author": "bernardo@sonkomail.com",
     "contributors": [
