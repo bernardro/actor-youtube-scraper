@@ -116,8 +116,9 @@ exports.handleDetail = async (page, request) => {
 
     log.debug(`searching for uploadDate at ${uploadDateXp}`);
     const uploadDateStr = await utils.getDataFromXpath(page, uploadDateXp, 'innerHTML');
-    const uploadDate = moment(uploadDateStr, 'MMM DD, YYYY').format();
-    log.debug(`got uploadDate as ${uploadDate}`);
+    const uploadDateCleaned = uploadDateStr.replace('Premiered', '').trim();
+    const uploadDate = moment(uploadDateCleaned, 'MMM DD, YYYY').format();
+    log.debug(`got uploadDate as ${uploadDate}, uploadDateStr: ${uploadDateStr}, uploadDateCleaned: ${uploadDateCleaned}`);
 
     log.debug(`searching for likesCount at ${likesXp}`);
     const likesStr = await utils.getDataFromXpath(page, likesXp, 'innerHTML');
