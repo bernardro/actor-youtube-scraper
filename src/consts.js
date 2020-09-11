@@ -16,8 +16,9 @@ exports.SELECTORS = {
         searchBox: 'input#search',
         toggleFilterMenu: 'ytd-toggle-button-renderer a #button',
         filterBtnsXp: '//ytd-search-filter-renderer/a/div/yt-formatted-string',
-        youtubeVideosXp: "//*[@id='contents']/ytd-video-renderer",
-        urlXp: "./div/ytd-thumbnail/a[@id='thumbnail'][1]",
+        youtubeVideosSection: 'ytd-item-section-renderer',
+        youtubeVideosRenderer: 'ytd-video-renderer,ytd-grid-video-renderer', // grid is for channels
+        url: 'a[href^="/watch"]',
     },
     VIDEO: {
         titleXp: '//ytd-video-primary-info-renderer/div/h1/yt-formatted-string',
