@@ -40,10 +40,10 @@ This actor recognizes the following fields:
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| searchKeywords | String | Query to search Youtube for |
+| searchKeywords | String | (optional) Query to search Youtube for |
 | maxResults | Integer | (optional) How many videos should be loaded from each search, default is 50, maximum is 999 |
 | postsFromDate | String | (optional) How far back in history to go, default is "5 years ago". You can also use *minutes*,*hours*,*days*,*weeks* and *months* |
-| startUrls | String | Starting Youtube URLs, default is `https://www.youtube.com` but you can provide channel or videos urls |
+| startUrls | String | (optional) Starting Youtube URLs, you can provide channel or videos urls |
 | proxyConfiguration | Object | Proxy configuration |
 | verboseLog | Boolean | Whether to turn on verbose logging |
 
@@ -58,7 +58,11 @@ This solution requires the use of **Proxy servers**, either your own proxy serve
     "maxResults": 30,
     "postsFromDate": "2 weeks ago",
     "startUrls": [{
-        "url": "https://www.youtube.com/channel/UC8w/videos" // provide channels directly
+        "url": "https://www.youtube.com/channel/UC8w/videos" // channel videos
+    }, {
+        "url": "https://www.youtube.com/results?search_query=finances" // search queries
+    }, {
+        "url": "https://www.youtube.com/watch?v=kJQP7kiw5Fk" // videos
     }],
     "proxyConfiguration": {
         "useApifyProxy": true

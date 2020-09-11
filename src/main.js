@@ -57,18 +57,9 @@ Apify.main(async () => {
         throw new Error('You need to provide either searchKeywords or startUrls as input');
     }
 
-    // add starting url
-    if (input.searchKeywords) {
-        await requestQueue.addRequest({
-            url: 'https://www.youtube.com/',
-            userData: {
-                label: 'MASTER',
-                search: input.searchKeywords,
-            },
-        });
-    }
-
     if (startUrls && startUrls.length) {
+        log.info('Starting scraper with startUrls, ignoring searchKeywords');
+
         const parseUrls = await Apify.openRequestList(null, startUrls);
         let req;
         // eslint-disable-next-line no-cond-assign
@@ -81,6 +72,17 @@ Apify.main(async () => {
                 },
             });
         }
+    } else if (input.searchKeywords) {
+        // add starting url
+        log.info('Starting scraper with a search keyword');
+
+        await requestQueue.addRequest({
+            url: 'https://www.youtube.com/',
+            userData: {
+                label: 'MASTER',
+                search: input.searchKeywords,
+            },
+        });
     }
 
     const pptrCrawler = new Apify.PuppeteerCrawler(pptrCrawlerOpts);
