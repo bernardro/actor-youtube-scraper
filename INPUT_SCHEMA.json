@@ -33,14 +33,12 @@
             "prefill": "5 years ago",
             "nullable": true
         },
-        "startUrl": {
-            "title": "Start URL",
-            "type": "string",
-            "description": "Youtube URL to start with",
-            "prefill": "https://www.youtube.com/",
-            "default": "https://www.youtube.com/",
-            "editor": "textfield",
-            "nullable": false,
+        "startUrls": {
+            "title": "Direct URLs",
+            "type": "array",
+            "description": "Provide some direct Youtube urls, like channel urls or search urls",
+            "default": [],
+            "editor": "requestListSources",
             "sectionCaption": "Advanced options"
         },
         "proxyConfiguration": {
@@ -60,7 +58,6 @@
         }
     },
     "required": [
-        "startUrl",
-        "searchKeywords"
+        "proxyConfiguration"
     ]
 }

@@ -32,4 +32,4 @@ RUN npm --quiet set progress=false \
 COPY . ./
 
 # Specify how to run the source code
-CMD npm start
+# CMD npm start

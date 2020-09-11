@@ -1,36 +1,76 @@
 const moment = require('moment');
 const Apify = require('apify');
+const Puppeteer = require('puppeteer'); // eslint-disable-line
 
-const { log } = Apify.utils;
+const { log, sleep } = Apify.utils;
 
 const CONSTS = require('./consts');
 
-exports.loadVideosUrls = async (requestQueue, page, youtubeVideosXp, urlXp, maxRequested, videoIndx, maxInQueue) => {
-    let userRequestFilled = videoIndx >= maxRequested;
-    let queueLimitReached = videoIndx >= maxInQueue;
+/**
+ * @param {Apify.RequestQueue} requestQueue
+ * @param {Puppeteer.Page} page
+ * @param {number} maxRequested
+ * @param {boolean} isSearchResultPage
+ */
+exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResultPage) => {
+    const { youtubeVideosSection, youtubeVideosRenderer, url } = CONSTS.SELECTORS.SEARCH;
 
-    while (!queueLimitReached && !userRequestFilled) {
-        const videoXp = `${youtubeVideosXp}[${videoIndx + 1}]`;
-        await page.waitForXPath(videoXp, { visible: true });
-        const videos = await page.$x(videoXp);
-        await videos[0].hover();
+    log.debug('loadVideosUrls', { maxRequested });
+    let shouldContinue = true;
+    let videoCount = 0;
 
-        if (videos.length > 1) {
-            log.debug(`xPath for videoXp [${videoXp}] returns more than one hit, hovering last one...`);
-            await videos[videos.length - 1].hover();
+    while (shouldContinue) { // eslint-disable-line no-constant-condition
+        // youtube keep adding video sections to the page on scroll
+        const videoSections = await page.$$(youtubeVideosSection);
+
+        for (const videoSection of videoSections) {
+            // each section have around 20 videos
+            const videos = await videoSection.$$(youtubeVideosRenderer);
+
+            if (!videos.length) {
+                shouldContinue = false;
+                break;
+            }
+
+            for (const video of videos) {
+                await video.hover();
+
+                const rq = await requestQueue.addRequest({
+                    url: await video.$eval(url, (el) => el.href),
+                    userData: { label: 'DETAIL' },
+                });
+
+                if (!rq.wasAlreadyPresent) {
+                    // count only unique videos
+                    videoCount++;
+                }
+
+                if (videoCount > maxRequested) {
+                    shouldContinue = false;
+                    break;
+                }
+
+                await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
+
+                if (!isSearchResultPage) {
+                    // remove the link on channels, so the scroll happens
+                    await video.evaluate((el) => el.remove());
+                }
+            }
+
+            await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
+
+            if (isSearchResultPage) {
+                // remove element after extracting result urls. removing it make the page scroll,
+                // and frees up memory. only delete nodes in search results
+                await videoSection.evaluate((el) => el.remove());
+            }
+
+            if (!shouldContinue) {
+                break;
+            }
         }
-
-        const urls = await videos[0].$x(urlXp);
-        const url = await page.evaluate(el => el.href, urls[0]);
-        await requestQueue.addRequest({ url, userData: { label: 'DETAIL' } });
-
-        videoIndx++;
-
-        userRequestFilled = videoIndx >= maxRequested;
-        queueLimitReached = videoIndx >= maxInQueue;
     }
-
-    return userRequestFilled;
 };
 
 exports.getDataFromXpath = async (page, xPath, attrib) => {
