@@ -17,7 +17,7 @@ Apify.main(async () => {
 
     // launch options - puppeteer
     const pptrLaunchOpts = {};
-    pptrLaunchOpts.stealth = true;
+    pptrLaunchOpts.stealth = false; // TODO: change back when this is fixed, disable for increased performance
     pptrLaunchOpts.useChrome = Apify.isAtHome();
 
     const requestQueue = await Apify.openRequestQueue();
