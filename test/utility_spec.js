@@ -5,7 +5,6 @@ const moment = require('moment');
 
 const utils = require('../src/utility');
 
-
 describe('getRandBetween', () => {
     const numTestCycles = 1000;
     const includeList = [3, 4, 5, 6, 7];
@@ -51,6 +50,18 @@ describe('getRandClickPos', () => {
             assert(yPos > divRect.y, 'random y is greater than minimum y');
             assert(yPos < (divRect.y + divRect.height), 'random y is less than maximum y');
         }
+    });
+});
+
+describe('categorizeUrl', () => {
+    it('should categorize different start urls', () => {
+        expect(utils.categorizeUrl('')).to.equal('MASTER');
+        expect(utils.categorizeUrl('/watch?v=394u19u')).to.equal('DETAIL');
+        expect(utils.categorizeUrl('https://youtube.com/watch?v=394u19u')).to.equal('DETAIL');
+        expect(utils.categorizeUrl('/channel/asdrtsert/videos')).to.equal('CHANNEL');
+        expect(utils.categorizeUrl('https://www.youtube.com/user/asdrtsert/videos')).to.equal('CHANNEL');
+        expect(utils.categorizeUrl('https://www.youtube.com/c/asdrtsert')).to.equal('CHANNEL');
+        expect(utils.categorizeUrl('https://www.youtube.com/results?search_query=hello')).to.equal('SEARCH');
     });
 });
 
@@ -106,7 +117,6 @@ describe('isDateInputValid', () => {
         assert(isValid('60') === false, '60 is invalid');
         assert(isValid('36 # ago') === false, '36 # ago is invalid');
         assert(isValid('120 minutes ago ##') === false, '120 minutes ago ## is invalid');
-
     });
 });
 

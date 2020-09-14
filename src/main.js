@@ -41,6 +41,8 @@ Apify.main(async () => {
         }
 
         switch (request.userData.label) {
+            case 'CHANNEL':
+            case 'SEARCH':
             case 'MASTER': {
                 await crawler.handleMaster(page, requestQueue, input, request);
                 break;
@@ -65,10 +67,18 @@ Apify.main(async () => {
         // eslint-disable-next-line no-cond-assign
         while (req = await parseUrls.fetchNextRequest()) {
             // need to parse for requestsFromUrl first then categorize by path
+            const label = utils.categorizeUrl(req.url);
+            const pUrl = new URL(req.url);
+
+            if (label === 'CHANNEL' && !pUrl.pathname.includes('/videos')) {
+                pUrl.pathname = `${pUrl.pathname.split('/').filter((s) => s).join('/')}/videos`;
+                req.url = pUrl.toString();
+            }
+
             await requestQueue.addRequest({
                 url: req.url,
                 userData: {
-                    label: req.url.includes('/watch') ? 'DETAIL' : 'MASTER',
+                    label,
                 },
             });
         }

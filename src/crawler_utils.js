@@ -15,9 +15,9 @@ const CONSTS = require('./consts');
  */
 exports.handleMaster = async (page, requestQueue, input, request) => {
     const { searchBox, toggleFilterMenu, filterBtnsXp } = CONSTS.SELECTORS.SEARCH;
-    const { search } = request.userData;
+    const { search, label } = request.userData;
 
-    if (search) {
+    if (search && label === 'MASTER') {
         // we are searching
         log.debug('waiting for input box...');
         const searchBxElem = await page.waitForSelector(searchBox, { visible: true });
@@ -86,7 +86,7 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
 
     const maxRequested = (input.maxResults && input.maxResults > 0) ? +input.maxResults : 99999;
 
-    await utils.loadVideosUrls(requestQueue, page, maxRequested, !!search);
+    await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label));
 
     log.info('infinite scroll done...');
 };
@@ -158,7 +158,14 @@ exports.handleDetail = async (page, request) => {
 };
 
 exports.hndlPptGoto = async ({ page, request }) => {
-    await puppeteer.blockRequests(page);
+    await puppeteer.blockRequests(page, {
+        extraUrlPatterns: [
+            'google-analytics',
+            'doubleclick.net',
+            'googletagmanager',
+            '/log_event',
+        ],
+    });
     return page.goto(request.url, { waitUntil: 'domcontentloaded' });
 };
 
