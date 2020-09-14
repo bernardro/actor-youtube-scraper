@@ -84,6 +84,34 @@ exports.getDataFromSelector = async (page, slctr, attrib) => {
     return page.evaluate((el, key) => el[key], slctrElem, attrib);
 };
 
+/**
+ * @param {string} url
+ */
+exports.categorizeUrl = (url) => {
+    try {
+        const pUrl = new URL(url, 'https://www.youtube.com');
+
+        if (!pUrl.hostname.includes('youtube.com')) {
+            throw new Error('Invalid youtube url');
+        }
+
+        let label = 'MASTER';
+
+        if (pUrl.searchParams.get('v')) {
+            label = 'DETAIL';
+        } else if (pUrl.searchParams.get('search_query')) {
+            label = 'SEARCH';
+        } else if (pUrl.pathname.includes('/channel/') || pUrl.pathname.includes('/user/') || pUrl.pathname.includes('/c/')) {
+            label = 'CHANNEL';
+        }
+
+        return label;
+    } catch (e) {
+        log.exception(e, 'categorizeUrl', { url });
+        return null;
+    }
+};
+
 exports.unformatNumbers = (numStr) => {
     const numberMatch = numStr.replace(/[^0-9,.]/ig, '');
     if (numberMatch) {
