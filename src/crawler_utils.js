@@ -90,9 +90,7 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
 
     const maxRequested = (input.maxResults && input.maxResults > 0) ? +input.maxResults : 99999;
 
-    const videosEnqueued = await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label));
-
-    log.info(`[${searchOrUrl}]: Scrolling done. Enqueued ${videosEnqueued} videos.`);
+    await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
 };
 
 exports.handleDetail = async (page, request) => {

@@ -17,66 +17,80 @@ exports.handleErrorAndScreenshot = async (page, e, errorName) => {
  * @param {number} maxRequested
  * @param {boolean} isSearchResultPage
  */
-exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResultPage) => {
+exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResultPage, searchOrUrl) => {
     const { youtubeVideosSection, youtubeVideosRenderer, url } = CONSTS.SELECTORS.SEARCH;
 
     log.debug('loadVideosUrls', { maxRequested });
     let shouldContinue = true;
-    let videoCount = 0;
+    let videosEnqueued = 0;
+    let videosEnqueuedUnique = 0;
 
-    while (shouldContinue) { // eslint-disable-line no-constant-condition
-        // youtube keep adding video sections to the page on scroll
-        const videoSections = await page.$$(youtubeVideosSection);
+    const logInterval = setInterval(
+        () => log.info(`[${searchOrUrl}]: Scrolling state - Enqueued ${videosEnqueuedUnique} unique video URLs, ${videosEnqueued} total`),
+        60000
+    );
 
-        for (const videoSection of videoSections) {
-            // each section have around 20 videos
-            const videos = await videoSection.$$(youtubeVideosRenderer);
+    try {
+        while (shouldContinue) { // eslint-disable-line no-constant-condition
+            // youtube keep adding video sections to the page on scroll
+            const videoSections = await page.$$(youtubeVideosSection);
 
-            if (!videos.length) {
-                shouldContinue = false;
-                break;
-            }
+            for (const videoSection of videoSections) {
+                // each section have around 20 videos
+                const videos = await videoSection.$$(youtubeVideosRenderer);
 
-            for (const video of videos) {
-                await video.hover();
-
-                const rq = await requestQueue.addRequest({
-                    url: await video.$eval(url, (el) => el.href),
-                    userData: { label: 'DETAIL' },
-                });
-
-                if (!rq.wasAlreadyPresent) {
-                    // count only unique videos
-                    videoCount++;
-                }
-
-                if (videoCount > maxRequested) {
+                if (!videos.length) {
                     shouldContinue = false;
                     break;
                 }
 
-                await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
+                for (const video of videos) {
+                    await video.hover();
 
-                if (!isSearchResultPage) {
-                    // remove the link on channels, so the scroll happens
-                    await video.evaluate((el) => el.remove());
+                    const rq = await requestQueue.addRequest({
+                        url: await video.$eval(url, (el) => el.href),
+                        userData: { label: 'DETAIL' },
+                    });
+
+                    videosEnqueued++;
+
+                    if (!rq.wasAlreadyPresent) {
+                        // count only unique videos
+                        videosEnqueuedUnique++;
+                    }
+
+                    if (videosEnqueued > maxRequested) {
+                        shouldContinue = false;
+                        break;
+                    }
+
+                    await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
+
+                    if (!isSearchResultPage) {
+                        // remove the link on channels, so the scroll happens
+                        await video.evaluate((el) => el.remove());
+                    }
+                }
+
+                await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
+
+                if (isSearchResultPage) {
+                    // remove element after extracting result urls. removing it make the page scroll,
+                    // and frees up memory. only delete nodes in search results
+                    await videoSection.evaluate((el) => el.remove());
+                }
+
+                if (!shouldContinue) {
+                    break;
                 }
             }
-
-            await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
-
-            if (isSearchResultPage) {
-                // remove element after extracting result urls. removing it make the page scroll,
-                // and frees up memory. only delete nodes in search results
-                await videoSection.evaluate((el) => el.remove());
-            }
-
-            if (!shouldContinue) {
-                break;
-            }
         }
+    } catch (e) {
+        clearInterval(logInterval);
+        throw e;
     }
-    return videoCount;
+    clearInterval(logInterval);
+    log.info(`[${searchOrUrl}]: Scrolling finished - Enqueued ${videosEnqueuedUnique} unique video URLs, ${videosEnqueued} total`);
 };
 
 exports.getDataFromXpath = async (page, xPath, attrib) => {
