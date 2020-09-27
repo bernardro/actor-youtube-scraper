@@ -18,22 +18,23 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
     const { searchBox, toggleFilterMenu, filterBtnsXp } = CONSTS.SELECTORS.SEARCH;
     const { search, label } = request.userData;
 
+    // Searching only if search was directly provided on input, for other Start URLs, we go directly to scrolling
     if (search && label === 'MASTER') {
         // we are searching
         log.debug('waiting for input box...');
         const searchBxElem = await page.waitForSelector(searchBox, { visible: true });
         if (searchBxElem) {
-            log.debug(`searchBoxInput found at ${searchBox}`);
+            log.debug(`[${search}]: searchBoxInput found at ${searchBox}`);
         }
 
         // tap in searchBox so that we can type
         await page.tap(searchBox);
 
-        log.info('entering search text...');
+        log.info(`[${search}]: Entering search text...`);
         await utils.doTextInput(page, search);
 
         // submit search and wait for results page (and filter button) to load
-        log.info('submit search...');
+        log.info(`[${search}]: Submiting search...`);
         await page.keyboard.press('Enter', { delay: utils.getDelayMs(CONSTS.DELAY.KEY_PRESS) });
 
         // pause while page reloads
@@ -47,7 +48,7 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
             // for every filter:
             // - click on filter menu to expand it
             // - click on specific filter button to add the filter
-            log.info('setting filters...');
+            log.info(`[${search}]: Setting filters...`);
             const filtersToAdd = utils.getYoutubeDateFilters(input.postsFromDate);
             for (const filterLabel of filtersToAdd) {
                 await page.tap(toggleFilterMenu);
@@ -66,7 +67,9 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
         }
     }
 
-    log.debug('waiting for first video to load...');
+    const searchOrUrl = search || request.url;
+
+    log.debug(`[${searchOrUrl}]: waiting for first video to load...`);
     const { youtubeVideosSection, youtubeVideosRenderer } = CONSTS.SELECTORS.SEARCH;
     const queuedVideos = await page.$$(`${youtubeVideosSection} ${youtubeVideosRenderer}`);
 
@@ -78,18 +81,18 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
     // keep scrolling until no more videos or max limit reached
     if (queuedVideos.length === 0) {
         if (input.searchKeywords) {
-            throw new Error(`The keywords '${input.searchKeywords} return no youtube videos, try a different search`);
+            throw `[${searchOrUrl}]: Error: The keywords '${input.searchKeywords} returned no youtube videos, try a different search`;
         }
-        throw new Error('No videos found');
+        throw `[${searchOrUrl}]: Error: No videos found`;
     }
 
-    log.info('start infinite scrolling downwards to load all the videos...');
+    log.info(`[${searchOrUrl}]: Starting infinite scrolling downwards to load all the videos...`);
 
     const maxRequested = (input.maxResults && input.maxResults > 0) ? +input.maxResults : 99999;
 
-    await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label));
+    const videosEnqueued = await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label));
 
-    log.info('infinite scroll done...');
+    log.info(`[${searchOrUrl}]: Scrolling done. Enqueued ${videosEnqueued} videos.`);
 };
 
 exports.handleDetail = async (page, request) => {

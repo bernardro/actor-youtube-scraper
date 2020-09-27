@@ -1,49 +1,35 @@
-![Youtube-Apify Integration](https://user-images.githubusercontent.com/53663510/71532335-dd4f1200-28c0-11ea-8563-7b4e251b6d2e.png "Youtube-Apify Integration")
+# Youtube Scraper
 
-# Actor - Youtube scraper
+## Youtube Scraper powered by Apify's Puppeteer crawler
 
-## Youtube scraper powered by Apify's puppeteer crawler
+Youtube has an API that gives access to search data as well as detailed data on each video. However, it requires you to log in and imposes quota limits on each API endpoint.
 
-Youtube has an API that gives access to search data as well as detailed data on each video.
-This however requires you to log in and although it is free for now, they impose quota limits on each API endpoint.
-This is understandable as it prevents abuse but it may be too restrictive or technical for simple use cases.
+That is why Youtube Scraper was created and implemented as an [actor](https://apify.com/actors) to run on the [Apify platform](https://apify.com). This scraper is open-source and you can easily run it locally or on your system. Contributions are welcome.
 
-The youtube API is designed for apps that manipulate and reuse the data programmatically,
-and apps that require detailed technical information.
+Features of Youtube Scraper:
+- Scrape videos by specifying a search keyword(s) or URLs to get [video details](#scraper-output):
+- Limit the videos returned by upload date by entering a date in an easy-read format e.g "2 weeks ago"
+- Limit the number of videos returned for each search or channel (focusing on the top videos)
 
-That is why this scraper was created and implemented as an "actor" on the Apify platform. At this time this actor allows you to:
-- Scrape videos by specifying search keyword(s) to get the following details:
-
-  `id`
-  `title`
-  `url`
-  `views`
-  `upload date`
-  `likes`
-  `dislikes`
-  `channel name`
-  `channel url`
-  `subscribers`
-  `details`
-
-- Limit the videos returned by upload date by entering date in an easy-read format e.g "2 weeks ago"
-- Limit the overall number of videos returned by entering a number e.g "50" videos maximum
-
-Features **not** available in this actor:
-- Scraping comments on a video
-- Scraping channel details
+## Table of contents
+- [Input parameters](#input-parameters)
+- [During the run](#during-the-run)
+- [Scraper output](#scraper-output)
+- [Planned features](#planned-features)
+- [Changelog](#changelog)
+- [Notes for developers](#notes-for-developers)
 
 ## Input parameters
 The input of this actor should be JSON specifying what to search for on Youtube.
-If this actor is run on the Apify platform a user friendly graphical interface will be provided for you to configure the scraper before running it.
-This actor recognizes the following fields:
+If this actor is run on the Apify platform a user-friendly graphical interface will be provided for you to configure the scraper before running it.
+This actor recognizes the following input fields:
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | searchKeywords | String | (optional) Query to search Youtube for |
-| maxResults | Integer | (optional) How many videos should be loaded from each search, default is 50, maximum is 999 |
+| maxResults | Integer | (optional) How many videos should be loaded from each search or channel, default is 50 |
 | postsFromDate | String | (optional) How far back in history to go, default is "5 years ago". You can also use *minutes*,*hours*,*days*,*weeks* and *months* |
-| startUrls | String | (optional) Starting Youtube URLs, you can provide channel or videos urls |
+| startUrls | String | (optional) Starting Youtube URLs, you can provide search, channel or videos urls |
 | proxyConfiguration | Object | Proxy configuration |
 | verboseLog | Boolean | Whether to turn on verbose logging |
 
@@ -110,6 +96,13 @@ Here is a sample of the output (long lines shortened):
   "details": "Welcome to the day after <a class=\"yt-simple-endpoint style-sco..."
 }
 ```
+
+## Planned features
+- Scraping comments on a video
+- Scraping channel details
+
+## Changelog
+Changes related to the new versions are listed in the [CHANGELOG.md](https://github.com/bernardro/actor-youtube-scraper/blob/master/CHANGELOG.md) file.
 
 ## Notes for developers
 

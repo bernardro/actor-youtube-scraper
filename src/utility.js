@@ -76,6 +76,7 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
             }
         }
     }
+    return videoCount;
 };
 
 exports.getDataFromXpath = async (page, xPath, attrib) => {
