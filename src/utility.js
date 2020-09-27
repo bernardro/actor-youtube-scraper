@@ -6,6 +6,11 @@ const { log, sleep } = Apify.utils;
 
 const CONSTS = require('./consts');
 
+exports.handleErrorAndScreenshot = async (page, e, errorName) => {
+    await Apify.utils.puppeteer.saveSnapshot(page, { key: `ERROR-${errorName}-${Math.random()}`});
+    throw `${errorName} - raw error ${e.message}`;
+};
+
 /**
  * @param {Apify.RequestQueue} requestQueue
  * @param {Puppeteer.Page} page
@@ -74,13 +79,13 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
 };
 
 exports.getDataFromXpath = async (page, xPath, attrib) => {
-    await page.waitForXPath(xPath);
+    await page.waitForXPath(xPath, { timeout: 120000 });
     const xElement = await page.$x(xPath);
     return page.evaluate((el, key) => el[key], xElement[0], attrib);
 };
 
 exports.getDataFromSelector = async (page, slctr, attrib) => {
-    const slctrElem = await page.waitForSelector(slctr, { visible: true });
+    const slctrElem = await page.waitForSelector(slctr, { visible: true, timeout: 120000 });
     return page.evaluate((el, key) => el[key], slctrElem, attrib);
 };
 

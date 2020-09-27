@@ -11,8 +11,6 @@ Apify.main(async () => {
     const { verboseLog, startUrls = [] } = input;
     if (verboseLog) {
         log.setLevel(log.LEVELS.DEBUG);
-    } else {
-        log.setLevel(log.LEVELS.WARNING);
     }
 
     // launch options - puppeteer

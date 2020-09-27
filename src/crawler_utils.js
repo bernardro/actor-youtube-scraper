@@ -6,6 +6,7 @@ const { log, sleep, puppeteer } = Apify.utils;
 
 const utils = require('./utility');
 const CONSTS = require('./consts');
+const { handleErrorAndScreenshot } = require('./utility');
 
 /**
  * @param {Puppeteer.Page} page
@@ -100,34 +101,41 @@ exports.handleDetail = async (page, request) => {
     log.debug(`got videoId as ${videoId}`);
 
     log.debug(`searching for title at ${titleXp}`);
-    const title = await utils.getDataFromXpath(page, titleXp, 'innerHTML');
+    const title = await utils.getDataFromXpath(page, titleXp, 'innerHTML')
+        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-title-failed'));
     log.debug(`got title as ${title}`);
 
     log.debug(`searching for viewCount at ${viewCountXp}`);
-    const viewCountStr = await utils.getDataFromXpath(page, viewCountXp, 'innerHTML');
+    const viewCountStr = await utils.getDataFromXpath(page, viewCountXp, 'innerHTML')
+        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-viewCount-failed'));
     const viewCount = utils.unformatNumbers(viewCountStr);
     log.debug(`got viewCount as ${viewCountStr} -> ${viewCount}`);
 
     log.debug(`searching for uploadDate at ${uploadDateXp}`);
-    const uploadDateStr = await utils.getDataFromXpath(page, uploadDateXp, 'innerHTML');
+    const uploadDateStr = await utils.getDataFromXpath(page, uploadDateXp, 'innerHTML')
+        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-uploadDate-failed'));
     const uploadDateCleaned = uploadDateStr.replace('Premiered', '').trim();
     const uploadDate = moment(uploadDateCleaned, 'MMM DD, YYYY').format();
     log.debug(`got uploadDate as ${uploadDate}, uploadDateStr: ${uploadDateStr}, uploadDateCleaned: ${uploadDateCleaned}`);
 
     log.debug(`searching for likesCount at ${likesXp}`);
-    const likesStr = await utils.getDataFromXpath(page, likesXp, 'innerHTML');
+    const likesStr = await utils.getDataFromXpath(page, likesXp, 'innerHTML')
+        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-likesCount-failed'));
     const likesCount = utils.unformatNumbers(likesStr);
     log.debug(`got likesCount as ${likesCount}`);
 
     log.debug(`searching for dislikesCount at ${dislikesXp}`);
-    const dislikesStr = await utils.getDataFromXpath(page, dislikesXp, 'innerHTML');
+    const dislikesStr = await utils.getDataFromXpath(page, dislikesXp, 'innerHTML')
+        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-dislikesCount-failed'));
     const dislikesCount = utils.unformatNumbers(dislikesStr);
     log.debug(`got dislikesCount as ${dislikesCount}`);
 
     log.debug(`searching for channel details at ${channelXp}`);
-    const channelName = await utils.getDataFromXpath(page, channelXp, 'innerHTML');
+    const channelName = await utils.getDataFromXpath(page, channelXp, 'innerHTML')
+        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-channelName-failed'));
     log.debug(`got channelName as ${channelName}`);
-    const channelUrl = await utils.getDataFromXpath(page, channelXp, 'href');
+    const channelUrl = await utils.getDataFromXpath(page, channelXp, 'href')
+        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-channelUrl-failed'));
     log.debug(`got channelUrl as ${channelUrl}`);
 
     log.debug(`searching for numberOfSubscribers at ${subscribersXp}`);

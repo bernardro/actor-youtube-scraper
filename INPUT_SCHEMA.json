@@ -33,13 +33,19 @@
             "prefill": "5 years ago",
             "nullable": true
         },
+        "verboseLog": {
+            "title": "Verbose log",
+            "type": "boolean",
+            "description": "Debug messages will be included in the log.",
+            "default": false
+        },
         "startUrls": {
             "title": "Direct URLs",
             "type": "array",
-            "description": "Provide some direct Youtube urls, like channel urls or search urls",
+            "description": "Provide some direct Youtube urls, like channel urls or search urls. When provided, it disables search.",
             "default": [],
             "editor": "requestListSources",
-            "sectionCaption": "Advanced options"
+            "sectionCaption": "Direct URLs"
         },
         "proxyConfiguration": {
             "title": "Proxy configuration",
@@ -48,13 +54,8 @@
             "description": "The best option is usually Automatic proxy. But you can also use your own proxies or no proxy",
             "prefill": {
                 "useApifyProxy": true
-            }
-        },
-        "verboseLog": {
-            "title": "Verbose log",
-            "type": "boolean",
-            "description": "Debug messages will be included in the log.",
-            "default": true
+            },
+            "sectionCaption": "Proxy configuration"
         }
     },
     "required": [
