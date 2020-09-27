@@ -8,7 +8,7 @@ const CONSTS = require('./consts');
 
 exports.handleErrorAndScreenshot = async (page, e, errorName) => {
     await Apify.utils.puppeteer.saveSnapshot(page, { key: `ERROR-${errorName}-${Math.random()}`});
-    throw `${errorName} - raw error ${e.message}`;
+    throw `Error: ${errorName} - Raw error: ${e.message}`;
 };
 
 /**

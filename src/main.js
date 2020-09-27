@@ -33,9 +33,16 @@ Apify.main(async () => {
     pptrCrawlerOpts.gotoFunction = crawler.hndlPptGoto;
     pptrCrawlerOpts.handlePageTimeoutSecs = 3600;
     pptrCrawlerOpts.handleFailedRequestFunction = crawler.hndlFaildReqs;
-    pptrCrawlerOpts.handlePageFunction = async ({ page, request }) => {
-        if (utils.isErrorStatusCode(request.statusCode)) {
-            throw new Error(`Request error status code: ${request.statusCode} msg: ${request.statusMessage}`);
+    pptrCrawlerOpts.handlePageFunction = async ({ page, request, puppeteerPool, response }) => {
+        const hasCaptcha = await page.$('.g-recaptcha');
+        if (hasCaptcha) {
+            await puppeteerPool.retire(page.browser());
+            throw `Got captcha, page will be retried. If this happens often, consider increasing number of proxies`;
+        }
+
+        if (utils.isErrorStatusCode(response.status())) {
+            await puppeteerPool.retire(page.browser());
+            throw `Response status is: ${response.status()} msg: ${response.statusText()}`;
         }
 
         switch (request.userData.label) {
