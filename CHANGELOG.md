@@ -1,4 +1,4 @@
-2020-09-17
+2020-09-27
 - Increased waiting timeouts to better handle concurrency
 - Added saving screenshots on errors
 - Better handling of Captchas, a page is automatically retried and the browser is restarted with a new proxy
