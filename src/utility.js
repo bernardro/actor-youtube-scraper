@@ -59,7 +59,7 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
                         videosEnqueuedUnique++;
                     }
 
-                    if (videosEnqueued > maxRequested) {
+                    if (videosEnqueued >= maxRequested) {
                         shouldContinue = false;
                         break;
                     }
