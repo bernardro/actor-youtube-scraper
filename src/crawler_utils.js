@@ -27,15 +27,16 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
             log.debug(`[${search}]: searchBoxInput found at ${searchBox}`);
         }
 
-        // tap in searchBox so that we can type
-        await page.tap(searchBox);
-
         log.info(`[${search}]: Entering search text...`);
         await utils.doTextInput(page, search);
 
         // submit search and wait for results page (and filter button) to load
         log.info(`[${search}]: Submiting search...`);
-        await page.keyboard.press('Enter', { delay: utils.getDelayMs(CONSTS.DELAY.KEY_PRESS) });
+
+        await Promise.allSettled([
+            page.tap('#search-icon-legacy'),
+            page.waitForNavigation({ timeout: 5000 }),
+        ]);
 
         // pause while page reloads
         await sleep(utils.getDelayMs(CONSTS.DELAY.HUMAN_PAUSE));
@@ -81,7 +82,7 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
     // keep scrolling until no more videos or max limit reached
     if (queuedVideos.length === 0) {
         if (input.searchKeywords) {
-            throw `[${searchOrUrl}]: Error: The keywords '${input.searchKeywords} returned no youtube videos, try a different search`;
+            throw `[${searchOrUrl}]: Error: The keywords '${input.searchKeywords} returned no youtube videos, retrying...`;
         }
         throw `[${searchOrUrl}]: Error: No videos found`;
     }
@@ -168,12 +169,24 @@ exports.handleDetail = async (page, request) => {
 
 exports.hndlPptGoto = async ({ page, request }) => {
     await puppeteer.blockRequests(page, {
-        extraUrlPatterns: [
+        urlPatterns: [
+            '.mp4',
+            '.webp',
+            '.jpeg',
+            '.jpg',
+            '.gif',
+            '.svg',
+            '.ico',
             'google-analytics',
             'doubleclick.net',
             'googletagmanager',
+            '/videoplayback',
+            '/adview',
+            '/stats/ads',
+            '/stats/watchtime',
+            '/stats/qoe',
             '/log_event',
-        ],
+        ]
     });
     return page.goto(request.url, { waitUntil: 'domcontentloaded' });
 };

@@ -5,7 +5,8 @@
 	"env": {
 		"userId": "@myuserid",
 		"apifyToken": "@mytoken",
-		"proxyPswd": "@proxyPswd"
+		"proxyPswd": "@proxyPswd",
+        "npm_config_loglevel": "silent"
 	},
 	"template": "puppeteer_crawler"
 }
