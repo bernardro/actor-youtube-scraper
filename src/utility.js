@@ -194,9 +194,13 @@ exports.clickHoveredElem = async (pptPage, xPath) => {
     await pptPage.mouse.up();
 };
 
+/**
+ * @param {Puppeteer.Page} pptPage
+ * @param {string[]} keywords
+ */
 exports.doTextInput = async (pptPage, keywords) => {
     for (let i = 0; i < keywords.length; i++) {
-        await pptPage.keyboard.press(keywords[i]);
+        await pptPage.type('input#search', keywords[i], { delay: CONSTS.DELAY.BTWN_KEY_PRESS });
         await Apify.utils.sleep(exports.getDelayMs(CONSTS.DELAY.BTWN_KEY_PRESS));
     }
 };

@@ -37,7 +37,7 @@ Apify.main(async () => {
         const hasCaptcha = await page.$('.g-recaptcha');
         if (hasCaptcha) {
             await puppeteerPool.retire(page.browser());
-            throw `Got captcha, page will be retried. If this happens often, consider increasing number of proxies`;
+            throw 'Got captcha, page will be retried. If this happens often, consider increasing number of proxies';
         }
 
         if (utils.isErrorStatusCode(response.status())) {

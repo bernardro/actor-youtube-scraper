@@ -31,5 +31,7 @@ RUN npm --quiet set progress=false \
 # for simple source file changes.
 COPY . ./
 
+ENV npm_config_loglevel=silent
+
 # Specify how to run the source code
 # CMD npm start
