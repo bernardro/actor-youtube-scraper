@@ -23,7 +23,7 @@
             "nullable": true
         },
         "postsFromDate": {
-            "title": "Videos from date",
+            "title": "Videos since date",
             "type": "string",
             "editor": "textfield",
             "description": "How far back in history to go e.g <br />30 minutes ago <br />1 week ago <br />5 months ago <br />4 years ago, etc.<br />for 'No limits' empty the field",
