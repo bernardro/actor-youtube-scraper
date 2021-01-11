@@ -27,7 +27,7 @@
             "type": "string",
             "editor": "textfield",
             "description": "How far back in history to go e.g <br />30 minutes ago <br />1 week ago <br />5 months ago <br />4 years ago, etc.<br />for 'No limits' empty the field",
-            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *$",
+            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s",
             "minLength": 0,
             "maxLength": 16,
             "prefill": "5 years ago",
@@ -56,6 +56,30 @@
                 "useApifyProxy": true
             },
             "sectionCaption": "Proxy configuration"
+        },
+        "extendOutputFunction": {
+            "title": "Extend Output Function",
+            "description": "Add or remove properties on the output object or omit the output returning null",
+            "type": "string",
+            "default": "",
+            "prefill": "async ({ data, item, page, request, customData }) => {\n  return item; \n}",
+            "editor": "javascript"
+        },
+        "extendScraperFunction": {
+            "title": "Extend Scraper Function",
+            "description": "Advanced function that allows you to extend the default scraper functionality, allowing you to manually perform actions on the page",
+            "type": "string",
+            "default": "",
+            "prefill": "async ({ page, request, requestQueue, customData, Apify }) => {\n \n}",
+            "editor": "javascript"
+        },
+        "customData": {
+            "title": "Custom data",
+            "description": "Any data that you want to have available inside the Extend Output/Scraper Function",
+            "default": {},
+            "prefill": {},
+            "type": "object",
+            "editor": "json"
         }
     },
     "required": [

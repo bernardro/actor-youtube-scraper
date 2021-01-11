@@ -4,6 +4,3 @@ node_modules
 logs
 *.log
 .DS_Store
-
-apify_storage
-apify_storage

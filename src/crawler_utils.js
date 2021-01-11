@@ -94,7 +94,7 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
     await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
 };
 
-exports.handleDetail = async (page, request) => {
+exports.handleDetail = async (page, request, extendOutputFunction) => {
     const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp, channelXp, subscribersXp, descriptionXp, durationSlctr } = CONSTS.SELECTORS.VIDEO;
 
     log.info(`handling detail url ${request.url}`);
@@ -151,7 +151,7 @@ exports.handleDetail = async (page, request) => {
 
     const description = await utils.getDataFromXpath(page, descriptionXp, 'innerHTML');
 
-    await Apify.pushData({
+    await extendOutputFunction({
         title,
         id: videoId,
         url: request.url,
@@ -164,7 +164,7 @@ exports.handleDetail = async (page, request) => {
         numberOfSubscribers,
         duration: durationStr,
         details: description,
-    });
+    }, { page, request });
 };
 
 exports.hndlPptGoto = async ({ page, request }) => {
@@ -189,10 +189,6 @@ exports.hndlPptGoto = async ({ page, request }) => {
         ]
     });
     return page.goto(request.url, { waitUntil: 'domcontentloaded' });
-};
-
-exports.hndlPptLnch = (launchOpts) => {
-    return Apify.launchPuppeteer(launchOpts);
 };
 
 exports.hndlFaildReqs = async ({ request }) => {

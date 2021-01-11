@@ -126,3 +126,70 @@ The logic of the actor makes use of Youtube's own date filters because:
  - Youtube has a separate filter that toggles sorting by date
 
 So when a user requests videos from "5 days ago", we apply Youtube's "This week" filter as well as the "Sort by Upload date" filter.
+
+## Extend output function
+
+Extend output function allows you to omit output, add some extra properties to the output by using the `page` variable or change the shape of your output altogether:
+
+```js
+async ({ item }) => {
+    // remove information from the item
+    item.details = undefined;
+    // or delete item.details;
+    return item;
+}
+```
+
+```js
+async ({ item, page }) => {
+    // add more info, in this case, the shortLink for the video
+    const shortLink = await page.evaluate(() => {
+        const link = document.querySelector('link[rel="shortlinkUrl"]');
+        if (link) {
+            return link.href;
+        }
+    });
+
+    return {
+        ...item,
+        shortLink,
+    }
+}
+```
+
+```js
+async ({ item }) => {
+    // omit item, just return null
+    return null;
+}
+```
+
+## Extend scraper function
+
+Extend scraper function allows you to add functionality to the existing baseline behavior.
+
+For example, you may enqueue related videos, but not recursively
+
+```js
+async ({ page, request, requestQueue, customData, Apify }) => {
+    if (request.userData.label === 'DETAIL' && !request.userData.isRelated) {
+        await page.waitForSelector('ytd-watch-next-secondary-results-renderer');
+
+        const related = await page.evaluate(() => {
+            return [...document.querySelectorAll('ytd-watch-next-secondary-results-renderer a[href*="watch?v="]')].map(a => a.href);
+        });
+
+        for (const url of related) {
+            await requestQueue.addRequest({
+                url,
+                userData: {
+                    label: 'DETAIL',
+                    isRelated: true,
+                },
+            });
+        }
+    }
+}
+```
+
+NB.: if this function throws, it will retry the same url it's visiting again

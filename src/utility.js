@@ -1,13 +1,14 @@
 const moment = require('moment');
 const Apify = require('apify');
 const Puppeteer = require('puppeteer'); // eslint-disable-line
+const vm = require('vm');
 
 const { log, sleep } = Apify.utils;
 
 const CONSTS = require('./consts');
 
 exports.handleErrorAndScreenshot = async (page, e, errorName) => {
-    await Apify.utils.puppeteer.saveSnapshot(page, { key: `ERROR-${errorName}-${Math.random()}`});
+    await Apify.utils.puppeteer.saveSnapshot(page, { key: `ERROR-${errorName}-${Math.random()}` });
     throw `Error: ${errorName} - Raw error: ${e.message}`;
 };
 
@@ -27,7 +28,7 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
 
     const logInterval = setInterval(
         () => log.info(`[${searchOrUrl}]: Scrolling state - Enqueued ${videosEnqueuedUnique} unique video URLs, ${videosEnqueued} total`),
-        60000
+        60000,
     );
 
     try {
@@ -100,7 +101,7 @@ exports.getDataFromXpath = async (page, xPath, attrib) => {
 };
 
 exports.getDataFromSelector = async (page, slctr, attrib) => {
-    const slctrElem = await page.waitForSelector(slctr, { visible: true, timeout: 120000 });
+    const slctrElem = await page.waitForSelector(slctr, { visible: true, timeout: 30000 });
     return page.evaluate((el, key) => el[key], slctrElem, attrib);
 };
 
@@ -331,3 +332,115 @@ exports.getRandBetween = (min, max) => {
 exports.getDelayMs = (minMax) => {
     return exports.getRandBetween(minMax.min, minMax.max);
 };
+
+/**
+ * @template T
+ * @typedef {T & { Apify: Apify, customData: any }} PARAMS
+ */
+
+/**
+ * Compile a IO function for mapping, filtering and outputing items.
+ * Can be used as a no-op for interaction-only (void) functions on `output`.
+ * Data can be mapped and filtered twice.
+ *
+ * Provided base map and filter functions is for preparing the object for the
+ * actual extend function, it will receive both objects, `data` as the "raw" one
+ * and "item" as the processed one.
+ *
+ * Always return a passthrough function if no outputFunction provided on the
+ * selected key.
+ *
+ * @template RAW
+ * @template {{ [key: string]: any }} INPUT
+ * @template MAPPED
+ * @template {{ [key: string]: any }} HELPERS
+ * @param {{
+ *  key: string,
+ *  map?: (data: RAW, params: PARAMS<HELPERS>) => Promise<MAPPED>,
+ *  output?: (data: MAPPED, params: PARAMS<HELPERS>) => Promise<void>,
+ *  filter?: (data: RAW, params: PARAMS<HELPERS>) => Promise<boolean>,
+ *  input: INPUT,
+ *  helpers: HELPERS,
+ * }} params
+ * @return {Promise<(data: RAW, args?: Record<string, any>) => Promise<void>>}
+ */
+const extendFunction = async ({
+    key,
+    output,
+    filter,
+    map,
+    input,
+    helpers,
+}) => {
+    /**
+     * @type {PARAMS<HELPERS>}
+     */
+    const base = {
+        ...helpers,
+        Apify,
+        customData: input.customData || {},
+    };
+
+    const evaledFn = (() => {
+        // need to keep the same signature for no-op
+        if (typeof input[key] !== 'string') {
+            return new vm.Script('({ item }) => item');
+        }
+
+        try {
+            return new vm.Script(input[key], {
+                lineOffset: 0,
+                produceCachedData: false,
+                displayErrors: true,
+                filename: `${key}.js`,
+            });
+        } catch (e) {
+            throw new Error(`"${key}" parameter must be a function`);
+        }
+    })();
+
+    /**
+     * Returning arrays from wrapper function split them accordingly.
+     * Normalize to an array output, even for 1 item.
+     *
+     * @param {any} value
+     * @param {any} [args]
+     */
+    const splitMap = async (value, args) => {
+        const mapped = map ? await map(value, args) : value;
+
+        if (!Array.isArray(mapped)) {
+            return [mapped];
+        }
+
+        return mapped;
+    };
+
+    return async (data, args) => {
+        const merged = { ...base, ...args };
+
+        for (const item of await splitMap(data, merged)) {
+            if (filter && !(await filter(data, merged))) {
+                continue; // eslint-disable-line no-continue
+            }
+
+            const result = await (evaledFn.runInThisContext()({
+                ...base,
+                ...args,
+                data,
+                item,
+            }));
+
+            for (const out of (Array.isArray(result) ? result : [result])) {
+                if (output) {
+                    if (out !== null) {
+                        await output(out, base);
+                    }
+                    // skip output
+                }
+            }
+        }
+    };
+};
+
+exports.extendFunction = extendFunction;
