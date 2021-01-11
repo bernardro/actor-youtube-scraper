@@ -1,12 +1,12 @@
 {
-	"name": "youtube-search-scraper",
-	"version": "0.0",
-	"buildTag": "latest",
-	"env": {
-		"userId": "@myuserid",
-		"apifyToken": "@mytoken",
-		"proxyPswd": "@proxyPswd",
+    "name": "youtube-search-scraper",
+    "version": "0.0",
+    "buildTag": "latest",
+    "env": {
+        "userId": "@myuserid",
+        "apifyToken": "@mytoken",
+        "proxyPswd": "@proxyPswd",
         "npm_config_loglevel": "silent"
-	},
-	"template": "puppeteer_crawler"
+    },
+    "template": "puppeteer_crawler"
 }
