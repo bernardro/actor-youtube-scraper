@@ -355,15 +355,15 @@ exports.getDelayMs = (minMax) => {
  * @template MAPPED
  * @template {{ [key: string]: any }} HELPERS
  * @param {{
- *  key: string,
- *  map?: (data: RAW, params: PARAMS<HELPERS>) => Promise<MAPPED>,
- *  output?: (data: MAPPED, params: PARAMS<HELPERS>) => Promise<void>,
- *  filter?: (data: RAW, params: PARAMS<HELPERS>) => Promise<boolean>,
- *  input: INPUT,
- *  helpers: HELPERS,
- * }} params
- * @return {Promise<(data: RAW, args?: Record<string, any>) => Promise<void>>}
- */
+    *  key: string,
+    *  map?: (data: RAW, params: PARAMS<HELPERS>) => Promise<MAPPED>,
+    *  output?: (data: MAPPED, params: PARAMS<HELPERS>) => Promise<void>,
+    *  filter?: (data: RAW, params: PARAMS<HELPERS>) => Promise<boolean>,
+    *  input: INPUT,
+    *  helpers: HELPERS,
+    * }} params
+    * @return {Promise<(data: RAW, args?: Record<string, any>) => Promise<void>>}
+    */
 const extendFunction = async ({
     key,
     output,
@@ -373,8 +373,8 @@ const extendFunction = async ({
     helpers,
 }) => {
     /**
-     * @type {PARAMS<HELPERS>}
-     */
+        * @type {PARAMS<HELPERS>}
+        */
     const base = {
         ...helpers,
         Apify,
@@ -425,8 +425,7 @@ const extendFunction = async ({
             }
 
             const result = await (evaledFn.runInThisContext()({
-                ...base,
-                ...args,
+                ...merged,
                 data,
                 item,
             }));
@@ -434,7 +433,7 @@ const extendFunction = async ({
             for (const out of (Array.isArray(result) ? result : [result])) {
                 if (output) {
                     if (out !== null) {
-                        await output(out, base);
+                        await output(out, merged);
                     }
                     // skip output
                 }
