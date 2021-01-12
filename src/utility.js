@@ -358,7 +358,7 @@ exports.getDelayMs = (minMax) => {
     *  key: string,
     *  map?: (data: RAW, params: PARAMS<HELPERS>) => Promise<MAPPED>,
     *  output?: (data: MAPPED, params: PARAMS<HELPERS>) => Promise<void>,
-    *  filter?: (data: RAW, params: PARAMS<HELPERS>) => Promise<boolean>,
+    *  filter?: (obj: { data: RAW, item: MAPPED }, params: PARAMS<HELPERS>) => Promise<boolean>,
     *  input: INPUT,
     *  helpers: HELPERS,
     * }} params
@@ -373,8 +373,8 @@ const extendFunction = async ({
     helpers,
 }) => {
     /**
-        * @type {PARAMS<HELPERS>}
-        */
+     * @type {PARAMS<HELPERS>}
+     */
     const base = {
         ...helpers,
         Apify,
@@ -420,7 +420,7 @@ const extendFunction = async ({
         const merged = { ...base, ...args };
 
         for (const item of await splitMap(data, merged)) {
-            if (filter && !(await filter(data, merged))) {
+            if (filter && !(await filter({ data, item }, merged))) {
                 continue; // eslint-disable-line no-continue
             }
 
