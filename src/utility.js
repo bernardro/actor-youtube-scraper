@@ -46,7 +46,9 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
                 }
 
                 for (const video of videos) {
-                    await video.hover();
+                    try {
+                        await video.hover();
+                    } catch (e) {}
 
                     const rq = await requestQueue.addRequest({
                         url: await video.$eval(url, (el) => el.href),
@@ -201,7 +203,7 @@ exports.clickHoveredElem = async (pptPage, xPath) => {
  */
 exports.doTextInput = async (pptPage, keywords) => {
     for (let i = 0; i < keywords.length; i++) {
-        await pptPage.type('input#search', keywords[i], { delay: CONSTS.DELAY.BTWN_KEY_PRESS });
+        await pptPage.type('input#search', keywords[i], { delay: CONSTS.DELAY.BTWN_KEY_PRESS.max });
         await Apify.utils.sleep(exports.getDelayMs(CONSTS.DELAY.BTWN_KEY_PRESS));
     }
 };
@@ -221,7 +223,7 @@ exports.getCutoffDate = (historyString) => {
 
 exports.isDateInputValid = (postsFromDate) => {
     if (postsFromDate) {
-        const matches = postsFromDate.match(/(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s? ago *$/ig);
+        const matches = postsFromDate.match(/(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?$/ig);
         return !!matches;
     }
 
