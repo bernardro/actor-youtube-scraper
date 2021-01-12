@@ -55,6 +55,9 @@
             "prefill": {
                 "useApifyProxy": true
             },
+            "default": {
+                "useApifyProxy": true
+            },
             "sectionCaption": "Proxy configuration"
         },
         "extendOutputFunction": {
