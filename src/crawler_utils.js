@@ -150,6 +150,7 @@ exports.handleDetail = async (page, request, extendOutputFunction) => {
     log.debug(`got videoDuration as ${durationStr}`);
 
     const description = await utils.getDataFromXpath(page, descriptionXp, 'innerHTML');
+    const text = await utils.getDataFromXpath(page, descriptionXp, 'innerText');
 
     await extendOutputFunction({
         title,
@@ -164,6 +165,7 @@ exports.handleDetail = async (page, request, extendOutputFunction) => {
         numberOfSubscribers,
         duration: durationStr,
         details: description,
+        text,
     }, { page, request });
 };
 
