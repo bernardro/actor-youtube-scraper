@@ -47,6 +47,32 @@
             "editor": "requestListSources",
             "sectionCaption": "Direct URLs"
         },
+        "extendOutputFunction": {
+            "title": "Extend Output Function",
+            "description": "Add or remove properties on the output object or omit the output returning null",
+            "type": "string",
+            "default": "",
+            "prefill": "async ({ data, item, page, request, customData }) => {\n  return item; \n}",
+            "editor": "javascript",
+            "sectionCaption": "Extend scraper functionality",
+            "sectionDescription": "You can change the output of the items for your dataset here, or add additional behavior for"
+        },
+        "extendScraperFunction": {
+            "title": "Extend Scraper Function",
+            "description": "Advanced function that allows you to extend the default scraper functionality, allowing you to manually perform actions on the page",
+            "type": "string",
+            "default": "",
+            "prefill": "async ({ page, request, requestQueue, customData, Apify }) => {\n \n}",
+            "editor": "javascript"
+        },
+        "customData": {
+            "title": "Custom data",
+            "description": "Any data that you want to have available inside the Extend Output/Scraper Function",
+            "default": {},
+            "prefill": {},
+            "type": "object",
+            "editor": "json"
+        },
         "proxyConfiguration": {
             "title": "Proxy configuration",
             "type": "object",
@@ -59,28 +85,6 @@
                 "useApifyProxy": true
             },
             "sectionCaption": "Proxy configuration"
-        },
-        "extendOutputFunction": {
-            "title": "Extend Output Function",
-            "description": "Add or remove properties on the output object or omit the output returning null",
-            "type": "string",
-            "prefill": "async ({ data, item, page, request, customData }) => {\n  return item; \n}",
-            "editor": "javascript"
-        },
-        "extendScraperFunction": {
-            "title": "Extend Scraper Function",
-            "description": "Advanced function that allows you to extend the default scraper functionality, allowing you to manually perform actions on the page",
-            "type": "string",
-            "prefill": "async ({ page, request, requestQueue, customData, Apify }) => {\n \n}",
-            "editor": "javascript"
-        },
-        "customData": {
-            "title": "Custom data",
-            "description": "Any data that you want to have available inside the Extend Output/Scraper Function",
-            "default": {},
-            "prefill": {},
-            "type": "object",
-            "editor": "json"
         }
     },
     "required": [
