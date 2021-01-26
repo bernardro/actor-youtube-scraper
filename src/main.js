@@ -3,7 +3,7 @@ const Apify = require('apify');
 const utils = require('./utility');
 const crawler = require('./crawler_utils');
 
-const { log } = Apify.utils;
+const { log, puppeteer } = Apify.utils;
 
 Apify.main(async () => {
     /**
@@ -17,6 +17,9 @@ Apify.main(async () => {
     }
 
     const requestQueue = await Apify.openRequestQueue();
+    const proxyConfig = await utils.proxyConfiguration({
+        proxyConfig: input.proxyConfiguration,
+    });
 
     if (!input.searchKeywords && (!startUrls || !startUrls.length)) {
         throw new Error('You need to provide either searchKeywords or startUrls as input');
@@ -73,6 +76,7 @@ Apify.main(async () => {
         output: async () => {}, // no-op for page interaction
         helpers: {
             requestQueue,
+            extendOutputFunction,
         },
     });
 
@@ -82,43 +86,104 @@ Apify.main(async () => {
             stealth: true,
             useChrome: Apify.isAtHome(),
         },
+        puppeteerPoolOptions: {
+            maxOpenPagesPerInstance: 1,
+        },
         useSessionPool: true,
-        proxyConfiguration: await Apify.createProxyConfiguration({ ...input.proxyConfiguration }),
-        gotoFunction: crawler.hndlPptGoto,
+        proxyConfiguration: proxyConfig,
+        gotoFunction: async ({ page, request, session, puppeteerPool }) => {
+            await puppeteer.blockRequests(page, {
+                urlPatterns: [
+                    '.mp4',
+                    '.webp',
+                    '.jpeg',
+                    '.jpg',
+                    '.gif',
+                    '.svg',
+                    '.ico',
+                    'google-analytics',
+                    'doubleclick.net',
+                    'googletagmanager',
+                    '/videoplayback',
+                    '/adview',
+                    '/stats/ads',
+                    '/stats/watchtime',
+                    '/stats/qoe',
+                    '/log_event',
+                ],
+            });
+
+            try {
+                // await here so we can catch the timeout
+                return await page.goto(request.url, {
+                    waitUntil: 'networkidle2',
+                    timeout: 60000,
+                });
+            } catch (e) {
+                // slow proxies must go
+                session.retire();
+                await puppeteerPool.retire(page.browser());
+                throw e;
+            }
+        },
         handlePageTimeoutSecs: 600,
-        handleFailedRequestFunction: crawler.hndlFaildReqs,
-        handlePageFunction: async ({ page, request, puppeteerPool, response }) => {
+        handleFailedRequestFunction: async ({ request }) => {
+            Apify.utils.log.error(`Request ${request.url} failed too many times`);
+
+            await Apify.pushData({
+                '#debug': Apify.utils.createRequestDebugInfo(request),
+            });
+        },
+        handlePageFunction: async ({ page, request, puppeteerPool, session, response }) => {
             // no-output function
             await extendScraperFunction(undefined, {
                 page,
                 request,
             });
 
-            const hasCaptcha = await page.$('.g-recaptcha');
-            if (hasCaptcha) {
-                await puppeteerPool.retire(page.browser());
-                throw 'Got captcha, page will be retried. If this happens often, consider increasing number of proxies';
-            }
-
-            if (utils.isErrorStatusCode(response.status())) {
-                await puppeteerPool.retire(page.browser());
-                throw `Response status is: ${response.status()} msg: ${response.statusText()}`;
-            }
-
-            switch (request.userData.label) {
-                case 'CHANNEL':
-                case 'SEARCH':
-                case 'MASTER': {
-                    await crawler.handleMaster(page, requestQueue, input, request);
-                    break;
+            try {
+                const hasCaptcha = await page.$('.g-recaptcha');
+                if (hasCaptcha) {
+                    throw 'Got captcha, page will be retried. If this happens often, consider increasing number of proxies';
                 }
-                case 'DETAIL': {
-                    await crawler.handleDetail(page, request, extendOutputFunction);
-                    break;
+
+                if (utils.isErrorStatusCode(response.status())) {
+                    throw `Response status is: ${response.status()} msg: ${response.statusText()}`;
                 }
-                default: throw new Error('Unknown request label in handlePageFunction');
+
+                if (await page.$('.yt-upsell-dialog-renderer')) {
+                    // this dialog steal focus, so need to click it
+                    await page.evaluate(async () => {
+                        const noThanks = document.querySelectorAll('.yt-upsell-dialog-renderer [role="button"]');
+
+                        for (const button of noThanks) {
+                            if (button.textContent && button.textContent.includes('No thanks')) {
+                                button.click();
+                                break;
+                            }
+                        }
+                    });
+                }
+
+                switch (request.userData.label) {
+                    case 'CHANNEL':
+                    case 'SEARCH':
+                    case 'MASTER': {
+                        await crawler.handleMaster(page, requestQueue, input, request);
+                        break;
+                    }
+                    case 'DETAIL': {
+                        await crawler.handleDetail(page, request, extendOutputFunction);
+                        break;
+                    }
+                    default: throw new Error('Unknown request label in handlePageFunction');
+                }
+            } catch (e) {
+                session.retire();
+                await puppeteerPool.retire(page.browser());
+                throw e;
             }
-        }
+        },
     });
     await pptrCrawler.run();
 });

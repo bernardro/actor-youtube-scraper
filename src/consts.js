@@ -11,10 +11,17 @@ exports.MOUSE_STEPS = 5;
 // 'document', 'image', 'xhr', 'script', 'stylesheet', 'font', 'other', 'manifest'
 exports.MEDIA_TYPES = ['image'];
 
+exports.LABELS = {
+    DETAIL: 'DETAIL',
+    MASTER: 'MASTER',
+    CHANNEL: 'CHANNEL',
+    SEARCH: 'SEARCH',
+};
+
 exports.SELECTORS = {
     SEARCH: {
         searchBox: 'input#search',
-        toggleFilterMenu: 'ytd-toggle-button-renderer a #button',
+        toggleFilterMenu: 'paper-button[aria-label="Search filters"]',
         filterBtnsXp: '//ytd-search-filter-renderer/a/div/yt-formatted-string',
         youtubeVideosSection: 'ytd-item-section-renderer',
         youtubeVideosRenderer: 'ytd-video-renderer,ytd-grid-video-renderer', // grid is for channels

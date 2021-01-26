@@ -35,7 +35,7 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
 
         await Promise.allSettled([
             page.tap('#search-icon-legacy'),
-            page.waitForNavigation({ timeout: 5000 }),
+            page.waitForNavigation({ timeout: 15000 }),
         ]);
 
         // pause while page reloads
@@ -51,18 +51,27 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
             // - click on specific filter button to add the filter
             log.info(`[${search}]: Setting filters...`);
             const filtersToAdd = utils.getYoutubeDateFilters(input.postsFromDate);
+
             for (const filterLabel of filtersToAdd) {
+                log.debug('Opening filter menu', { filterLabel });
                 await page.tap(toggleFilterMenu);
 
                 // wait for filter panel to show
                 await page.waitForXPath(filterBtnsXp, { visible: true });
 
                 const targetFilterXp = `${filterBtnsXp}[text()='${filterLabel}']`;
-                await utils.moveMouseToElemXp(page, targetFilterXp, CONSTS.MOUSE_STEPS, 'Filter button');
+                const filterBtn = await page.$x(targetFilterXp);
+
+                log.debug('Setting filter', { filterLabel });
 
                 await Promise.all([
-                    utils.clickHoveredElem(page, targetFilterXp),
-                    page.waitForNavigation({ waitUntil: ['domcontentloaded'] }),
+                    filterBtn[0].click(),
+                    Promise.race([
+                        // this is for actual navigation, usually sp= is added to the url
+                        page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 15000 }).catch(() => null),
+                        // this is for the sorting and/or some combinations
+                        page.waitForResponse((response) => response.url().includes('/search'), { timeout: 15000 }).catch(() => null),
+                    ]),
                 ]);
             }
         }
@@ -167,35 +176,4 @@ exports.handleDetail = async (page, request, extendOutputFunction) => {
         details: description,
         text,
     }, { page, request });
-};
-
-exports.hndlPptGoto = async ({ page, request }) => {
-    await puppeteer.blockRequests(page, {
-        urlPatterns: [
-            '.mp4',
-            '.webp',
-            '.jpeg',
-            '.jpg',
-            '.gif',
-            '.svg',
-            '.ico',
-            'google-analytics',
-            'doubleclick.net',
-            'googletagmanager',
-            '/videoplayback',
-            '/adview',
-            '/stats/ads',
-            '/stats/watchtime',
-            '/stats/qoe',
-            '/log_event',
-        ]
-    });
-    return page.goto(request.url, { waitUntil: 'domcontentloaded' });
-};
-
-exports.hndlFaildReqs = async ({ request }) => {
-    Apify.utils.log.error(`Request ${request.url} failed too many times`);
-    await Apify.pushData({
-        '#debug': Apify.utils.createRequestDebugInfo(request),
-    });
 };

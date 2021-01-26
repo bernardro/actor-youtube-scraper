@@ -62,7 +62,7 @@
             "description": "Advanced function that allows you to extend the default scraper functionality, allowing you to manually perform actions on the page",
             "type": "string",
             "default": "",
-            "prefill": "async ({ page, request, requestQueue, customData, Apify }) => {\n \n}",
+            "prefill": "async ({ page, request, requestQueue, customData, Apify, extendOutputFunction }) => {\n \n}",
             "editor": "javascript"
         },
         "customData": {

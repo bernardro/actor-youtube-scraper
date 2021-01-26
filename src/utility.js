@@ -103,7 +103,7 @@ exports.getDataFromXpath = async (page, xPath, attrib) => {
 };
 
 exports.getDataFromSelector = async (page, slctr, attrib) => {
-    const slctrElem = await page.waitForSelector(slctr, { visible: true, timeout: 30000 });
+    const slctrElem = await page.waitForSelector(slctr, { visible: true, timeout: 60000 });
     return page.evaluate((el, key) => el[key], slctrElem, attrib);
 };
 
@@ -221,15 +221,21 @@ exports.getCutoffDate = (historyString) => {
     return moment().subtract(numDurations, durationType);
 };
 
+/**
+ * @param {string} postsFromDate
+ */
 exports.isDateInputValid = (postsFromDate) => {
     if (postsFromDate) {
-        const matches = postsFromDate.match(/(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?$/ig);
+        const matches = postsFromDate.match(/(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?/ig);
         return !!matches;
     }
 
     return false;
 };
 
+/**
+ * @param {string} postsFromDate
+ */
 exports.getYoutubeDateFilters = (postsFromDate) => {
     if (!exports.isDateInputValid(postsFromDate)) {
         return [];
@@ -266,7 +272,7 @@ exports.getYoutubeDateFilters = (postsFromDate) => {
     if (youtubeFilters.length > 0) {
         // if we are using any of the youtube date filters
         // then we must also sort results by 'Upload date'
-        youtubeFilters.push('Upload date');
+        youtubeFilters.unshift('Upload date');
     }
 
     return youtubeFilters;
@@ -359,7 +365,7 @@ exports.getDelayMs = (minMax) => {
  * @param {{
  *  key: string,
  *  map?: (data: RAW, params: PARAMS<HELPERS>) => Promise<MAPPED>,
- *  output?: (data: MAPPED, params: PARAMS<HELPERS>) => Promise<void>,
+ *  output?: (data: MAPPED, params: PARAMS<HELPERS> & { data: RAW, item: MAPPED }) => Promise<void>,
  *  filter?: (obj: { data: RAW, item: MAPPED }, params: PARAMS<HELPERS>) => Promise<boolean>,
  *  input: INPUT,
  *  helpers: HELPERS,
@@ -435,7 +441,7 @@ const extendFunction = async ({
             for (const out of (Array.isArray(result) ? result : [result])) {
                 if (output) {
                     if (out !== null) {
-                        await output(out, merged);
+                        await output(out, { ...merged, data, item });
                     }
                     // skip output
                 }
@@ -445,3 +451,50 @@ const extendFunction = async ({
 };
 
 exports.extendFunction = extendFunction;
+
+/**
+ * Do a generic check when using Apify Proxy
+ *
+ * @typedef params
+ * @property {any} [params.proxyConfig] Provided apify proxy configuration
+ * @property {boolean} [params.required] Make the proxy usage required when running on the platform
+ * @property {string[]} [params.blacklist] Blacklist of proxy groups, by default it's ['GOOGLE_SERP']
+ * @property {boolean} [params.force] By default, it only do the checks on the platform. Force checking regardless where it's running
+ * @property {string[]} [params.hint] Hint specific proxy groups that should be used, like SHADER or RESIDENTIAL
+ *
+ * @param {params} params
+ * @returns {Promise<Apify.ProxyConfiguration | undefined>}
+ */
+module.exports.proxyConfiguration = async ({
+    proxyConfig,
+    required = true,
+    force = Apify.isAtHome(),
+    blacklist = ['GOOGLESERP'],
+    hint = [],
+}) => {
+    const configuration = await Apify.createProxyConfiguration(proxyConfig);
+
+    // this works for custom proxyUrls
+    if (Apify.isAtHome() && required) {
+        if (!configuration || (!configuration.usesApifyProxy && (!configuration.proxyUrls || !configuration.proxyUrls.length)) || !configuration.newUrl()) {
+            throw new Error('\n=======\nYou\'re required to provide a valid proxy configuration\n\n=======');
+        }
+    }
+
+    // check when running on the platform by default
+    if (force) {
+        // only when actually using Apify proxy it needs to be checked for the groups
+        if (configuration && configuration.usesApifyProxy) {
+            if (blacklist.some((blacklisted) => (configuration.groups || []).includes(blacklisted))) {
+                throw new Error(`\n=======\nThese proxy groups cannot be used in this actor. Choose other group or contact support@apify.com to give you proxy trial:\n\n*  ${blacklist.join('\n*  ')}\n\n=======`);
+            }
+
+            // specific non-automatic proxy groups like RESIDENTIAL, not an error, just a hint
+            if (hint.length && !hint.some((group) => (configuration.groups || []).includes(group))) {
+                Apify.utils.log.info(`\n=======\nYou can pick specific proxy groups for better experience:\n\n*  ${hint.join('\n*  ')}\n\n=======`);
+            }
+        }
+    }
+
+    return configuration;
+};
