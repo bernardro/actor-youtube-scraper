@@ -52,13 +52,20 @@ Apify.main(async () => {
         // add starting url
         log.info('Starting scraper with a search keyword');
 
-        await requestQueue.addRequest({
-            url: 'https://www.youtube.com/',
-            userData: {
-                label: 'MASTER',
-                search: input.searchKeywords,
-            },
-        });
+        for (let searchKeyword of input.searchKeywords.split(',')) {
+            searchKeyword = `${searchKeyword}`.trim();
+
+            if (searchKeyword) {
+                await requestQueue.addRequest({
+                    url: 'https://www.youtube.com/',
+                    uniqueKey: `SEARCH-${searchKeyword}`,
+                    userData: {
+                        label: 'MASTER',
+                        search: searchKeyword.trim(),
+                    },
+                });
+            }
+        }
     }
 
     const extendOutputFunction = await utils.extendFunction({
