@@ -11,7 +11,8 @@
         "pupetteer"
     ],
     "dependencies": {
-        "apify": "^0.22.4",
+        "apify": "^1.0",
+        "puppeteer": "*",
         "moment": "^2.29.1"
     },
     "devDependencies": {

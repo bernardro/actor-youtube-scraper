@@ -4,6 +4,7 @@
         "mocha": true
     },
     "rules": {
+        "no-throw-literal": "off",
         "no-unused-vars": [
             "error",
             {

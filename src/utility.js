@@ -476,8 +476,10 @@ module.exports.proxyConfiguration = async ({
 
     // this works for custom proxyUrls
     if (Apify.isAtHome() && required) {
-        if (!configuration || (!configuration.usesApifyProxy && (!configuration.proxyUrls || !configuration.proxyUrls.length)) || !configuration.newUrl()) {
-            throw new Error('\n=======\nYou\'re required to provide a valid proxy configuration\n\n=======');
+        if (!configuration
+            || (!configuration.usesApifyProxy
+                && (!configuration.proxyUrls || !configuration.proxyUrls.length)) || !configuration.newUrl()) {
+            throw '\n=======\nWrong Input! You must use Apify proxy or custom proxies with this scraper!\n\n=======';
         }
     }
 
@@ -486,7 +488,8 @@ module.exports.proxyConfiguration = async ({
         // only when actually using Apify proxy it needs to be checked for the groups
         if (configuration && configuration.usesApifyProxy) {
             if (blacklist.some((blacklisted) => (configuration.groups || []).includes(blacklisted))) {
-                throw new Error(`\n=======\nThese proxy groups cannot be used in this actor. Choose other group or contact support@apify.com to give you proxy trial:\n\n*  ${blacklist.join('\n*  ')}\n\n=======`);
+                throw '\n=======\nThese proxy groups cannot be used in this actor.'
+                    + `Choose other group or contact support@apify.com to give you proxy trial:\n\n*  ${blacklist.join('\n*  ')}\n\n=======`;
             }
 
             // specific non-automatic proxy groups like RESIDENTIAL, not an error, just a hint

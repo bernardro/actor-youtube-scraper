@@ -1,20 +1,25 @@
 const moment = require('moment');
 const Apify = require('apify');
+// eslint-disable-next-line no-unused-vars
 const Puppeteer = require('puppeteer');
 
-const { log, sleep, puppeteer } = Apify.utils;
+const { log, sleep } = Apify.utils;
 
 const utils = require('./utility');
 const CONSTS = require('./consts');
 const { handleErrorAndScreenshot } = require('./utility');
 
 /**
- * @param {Puppeteer.Page} page
- * @param {Apify.RequestQueue} requestQueue
- * @param {any} input
- * @param {Apify.Request} request
+ * @param {{
+ *  page: Puppeteer.Page,
+ *  requestQueue: Apify.RequestQueue,
+ *  searchKeywords: string[],
+ *  maxResults: number,
+ *  postsFromDate: string,
+ *  request: Apify.Request,
+ * }} config
  */
-exports.handleMaster = async (page, requestQueue, input, request) => {
+exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, postsFromDate, request }) => {
     const { searchBox, toggleFilterMenu, filterBtnsXp } = CONSTS.SELECTORS.SEARCH;
     const { search, label } = request.userData;
 
@@ -50,7 +55,7 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
             // - click on filter menu to expand it
             // - click on specific filter button to add the filter
             log.info(`[${search}]: Setting filters...`);
-            const filtersToAdd = utils.getYoutubeDateFilters(input.postsFromDate);
+            const filtersToAdd = utils.getYoutubeDateFilters(postsFromDate);
 
             for (const filterLabel of filtersToAdd) {
                 log.debug('Opening filter menu', { filterLabel });
@@ -90,15 +95,15 @@ exports.handleMaster = async (page, requestQueue, input, request) => {
 
     // keep scrolling until no more videos or max limit reached
     if (queuedVideos.length === 0) {
-        if (input.searchKeywords) {
-            throw `[${searchOrUrl}]: Error: The keywords '${input.searchKeywords} returned no youtube videos, retrying...`;
+        if (searchKeywords) {
+            throw `[${searchOrUrl}]: Error: The keywords '${searchKeywords} returned no youtube videos, retrying...`;
         }
         throw `[${searchOrUrl}]: Error: No videos found`;
     }
 
     log.info(`[${searchOrUrl}]: Starting infinite scrolling downwards to load all the videos...`);
 
-    const maxRequested = (input.maxResults && input.maxResults > 0) ? +input.maxResults : 99999;
+    const maxRequested = (maxResults && maxResults > 0) ? +maxResults : 99999;
 
     await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
 };
