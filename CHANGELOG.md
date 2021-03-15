@@ -1,3 +1,8 @@
+2021-03-15
+*Fixes:*
+- Fixed selector causing no data scraped
+- Removed stealth causing issues with new layout
+
 2020-09-27
 - Increased waiting timeouts to better handle concurrency
 - Added saving screenshots on errors

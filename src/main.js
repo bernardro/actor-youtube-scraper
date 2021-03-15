@@ -90,7 +90,7 @@ Apify.main(async () => {
     const pptrCrawler = new Apify.PuppeteerCrawler({
         requestQueue,
         launchPuppeteerOptions: {
-            stealth: true,
+            stealth: false,
             useChrome: Apify.isAtHome(),
         },
         puppeteerPoolOptions: {

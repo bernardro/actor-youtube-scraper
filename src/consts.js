@@ -29,7 +29,7 @@ exports.SELECTORS = {
     },
     VIDEO: {
         titleXp: '//ytd-video-primary-info-renderer/div/h1/yt-formatted-string',
-        viewCountXp: '//yt-view-count-renderer/span[1]',
+        viewCountXp: '//*[@id="count"]/ytd-video-view-count-renderer/span[1]',
         uploadDateXp: '//ytd-video-primary-info-renderer/div/div/div[1]/div[2]/yt-formatted-string',
         likesXp: "//ytd-menu-renderer/div/ytd-toggle-button-renderer[1]/a/*[@id='text']",
         dislikesXp: "//ytd-menu-renderer/div/ytd-toggle-button-renderer[2]/a/*[@id='text']",
