@@ -18,6 +18,7 @@ Apify.main(async () => {
         searchKeywords,
         maxResults,
         postsFromDate,
+        handlePageTimeoutSecs = 3600,
     } = input;
     if (verboseLog) {
         log.setLevel(log.LEVELS.DEBUG);
@@ -125,7 +126,7 @@ Apify.main(async () => {
                 });
             },
         ],
-        handlePageTimeoutSecs: 600,
+        handlePageTimeoutSecs,
         handleFailedRequestFunction: async ({ request }) => {
             Apify.utils.log.error(`Request ${request.url} failed too many times`);
 
