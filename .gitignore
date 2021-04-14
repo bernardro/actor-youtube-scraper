@@ -4,5 +4,4 @@ node_modules
 logs
 *.log
 .DS_Store
-
-apify_storage
+package-lock.json

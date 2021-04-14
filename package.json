@@ -11,7 +11,7 @@
         "pupetteer"
     ],
     "dependencies": {
-        "apify": "^1.0",
+        "apify": "^1.1.0",
         "puppeteer": "*",
         "moment": "^2.29.1"
     },
