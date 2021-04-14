@@ -1,3 +1,7 @@
+2021-04-14
+*Fixes*
+- Fixed changed selector that completely prevented the scrape
+
 2021-03-15
 *Fixes:*
 - Fixed selector causing no data scraped
