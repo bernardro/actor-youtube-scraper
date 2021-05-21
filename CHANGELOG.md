@@ -1,3 +1,11 @@
+2021-05-21
+*Features*:
+- Update SDK
+
+*Fixes*
+- Random zero results when searching
+- Click consent dialog
+
 2021-04-14
 *Fixes*
 - Fixed changed selector that completely prevented the scrape

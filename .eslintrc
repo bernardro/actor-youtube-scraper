@@ -3,6 +3,9 @@
     "env": {
         "mocha": true
     },
+    "parserOptions": {
+        "ecmaVersion": 2020
+    },
     "rules": {
         "no-throw-literal": "off",
         "no-unused-vars": [

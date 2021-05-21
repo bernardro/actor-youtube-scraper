@@ -17,6 +17,7 @@ exports.handleErrorAndScreenshot = async (page, e, errorName) => {
  * @param {Puppeteer.Page} page
  * @param {number} maxRequested
  * @param {boolean} isSearchResultPage
+ * @param {string} searchOrUrl
  */
 exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResultPage, searchOrUrl) => {
     const { youtubeVideosSection, youtubeVideosRenderer, url } = CONSTS.SELECTORS.SEARCH;
@@ -34,16 +35,18 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
     try {
         while (shouldContinue) { // eslint-disable-line no-constant-condition
             // youtube keep adding video sections to the page on scroll
+            await page.waitForSelector(youtubeVideosSection);
             const videoSections = await page.$$(youtubeVideosSection);
+
+            log.debug(`Video sections`, { shouldContinue, videoSections: videoSections.length });
+            let videoCount = 0;
 
             for (const videoSection of videoSections) {
                 // each section have around 20 videos
+                await page.waitForSelector(youtubeVideosRenderer);
                 const videos = await videoSection.$$(youtubeVideosRenderer);
 
-                if (!videos.length) {
-                    shouldContinue = false;
-                    break;
-                }
+                log.debug(`Videos count`, { shouldContinue, videos: videos.length });
 
                 for (const video of videos) {
                     try {
@@ -73,6 +76,8 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
                         // remove the link on channels, so the scroll happens
                         await video.evaluate((el) => el.remove());
                     }
+
+                    videoCount++;
                 }
 
                 await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
@@ -86,6 +91,11 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
                 if (!shouldContinue) {
                     break;
                 }
+            }
+
+            if (!videoCount) {
+                shouldContinue = false;
+                break;
             }
         }
     } catch (e) {

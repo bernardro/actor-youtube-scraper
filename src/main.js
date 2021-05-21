@@ -103,7 +103,7 @@ Apify.main(async () => {
         useSessionPool: true,
         proxyConfiguration: proxyConfig,
         preNavigationHooks: [
-            async ({ page }) => {
+            async ({ page }, gotoOptions) => {
                 await puppeteer.blockRequests(page, {
                     urlPatterns: [
                         '.mp4',
@@ -113,6 +113,7 @@ Apify.main(async () => {
                         '.gif',
                         '.svg',
                         '.ico',
+                        '.png',
                         'google-analytics',
                         'doubleclick.net',
                         'googletagmanager',
@@ -124,6 +125,8 @@ Apify.main(async () => {
                         '/log_event',
                     ],
                 });
+
+                gotoOptions.waitUntil = 'networkidle2';
             },
         ],
         handlePageTimeoutSecs,
@@ -150,6 +153,19 @@ Apify.main(async () => {
             if (utils.isErrorStatusCode(response.status())) {
                 session.retire();
                 throw `Response status is: ${response.status()} msg: ${response.statusText()}`;
+            }
+
+            if (page.url().includes('consent')) {
+                log.info('Clicking consent dialog');
+
+                await Promise.all([
+                    page.$eval('form[action*="consent"]', (el) => {
+                        el.querySelector('button')?.click();
+                    }),
+                    page.waitForNavigation({ waitUntil: 'networkidle2' }),
+                ]);
+
+                session.retire();
             }
 
             if (await page.$('.yt-upsell-dialog-renderer')) {
