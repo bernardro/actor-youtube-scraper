@@ -193,3 +193,7 @@ async ({ page, request, requestQueue, customData, Apify }) => {
 ```
 
 NB.: if this function throws, it will retry the same url it's visiting again
+
+## Acknowledgments
+
+This scraper clicks cookies and privacy consent dialogs in your behalf
