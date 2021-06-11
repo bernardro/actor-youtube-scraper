@@ -110,7 +110,7 @@ async function fetchSubtitles(page, language='en') {
             throw new Error('No subtitles found.');
         }
     } catch {
-        log.debug(`No subtitles found for ${page.url()}.`);
+        log.warning(`No subtitles found for ${page.url()}.`);
     }
 
     return srt;
