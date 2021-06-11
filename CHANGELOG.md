@@ -1,3 +1,7 @@
+2021-06-11
+*Features*:
+- Subtitles are now downloadable (saved to KeyValueStore as `videoID_languageCode`)
+
 2021-05-21
 *Features*:
 - Update SDK

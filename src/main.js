@@ -19,11 +19,14 @@ Apify.main(async () => {
         maxResults,
         postsFromDate,
         handlePageTimeoutSecs = 3600,
+        downloadSubtitles = false,
+        saveSubsToKVS: saveSubtitlesToKVS = false,
+        subtitlesLanguage = 'en',
     } = input;
     if (verboseLog) {
         log.setLevel(log.LEVELS.DEBUG);
     }
-
+    const kvStore = await Apify.openKeyValueStore();
     const requestQueue = await Apify.openRequestQueue();
     const proxyConfig = await utils.proxyConfiguration({
         proxyConfig: proxyConfiguration,
@@ -190,7 +193,17 @@ Apify.main(async () => {
                     break;
                 }
                 case 'DETAIL': {
-                    await crawler.handleDetail(page, request, extendOutputFunction);
+                    await crawler.handleDetail(
+                        page,
+                        request,
+                        extendOutputFunction,
+                        {
+                            doDownload: downloadSubtitles,
+                            saveToKVS: saveSubtitlesToKVS,
+                            language: subtitlesLanguage,
+                            kvs: kvStore,
+                        }
+                    );
                     break;
                 }
                 default: throw new Error('Unknown request label in handlePageFunction');
