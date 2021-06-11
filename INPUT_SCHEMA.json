@@ -93,6 +93,25 @@
                 "useApifyProxy": true
             },
             "sectionCaption": "Proxy configuration"
+        },
+        "downloadSubtitles": {
+            "title" : "Download subtitles",
+            "type": "boolean",
+            "description" : "If set to true, we will also download subtitles for given video and convert it to SRT format"
+        },
+        "saveSubsToKVS": {
+            "title" : "Save downloaded subtitles to Key Value Store",
+            "type": "boolean",
+            "description" : "If set to true, we will save downloaded (and converted to .srt format) subtitles to Key Value Store in format { subtitles: srt_text }. 'downloadSubtitles' must be set to true for this take an effect"
+        },
+        "subtitlesLanguage": {
+            "title" : "Download subtitles in selected language",
+            "type": "string",
+            "description" : "Language to download subtitles in. 'downloadSubtitles' must be set to true for this take an effect",
+            "editor": "select",
+            "default" : "en",
+            "enum" : ["en", "de", "es", "fr", "it", "ja", "ko", "nl", "pt", "ru"],
+            "enumTitles" : ["English", "German", "Spanish", "French", "Italian", "Japanese", "Korean", "Holland", "Portuguese", "Russian"]
         }
     },
     "required": [
