@@ -168,14 +168,14 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     const text = await utils.getDataFromXpath(page, descriptionXp, 'innerText');
 
     let srt = null;
-    let srtURL = null;
+    let srtUrl = null;
     if (subtitlesSettings.doDownload) {
         srt = await fetchSubtitles(page, subtitlesSettings.language);
         const id = `${videoId}_${subtitlesSettings.language}`;
         if (srt && subtitlesSettings.saveToKVS) {
             log.debug('Saving subtitles to KeyValueStore...');
             await subtitlesSettings.kvs.setValue(id, { subtitles: srt });
-            srtURL = subtitlesSettings.kvs.getPublicUrl(id);
+            srtUrl = subtitlesSettings.kvs.getPublicUrl(id);
         }
     }
 
@@ -194,6 +194,6 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
         details: description,
         text,
         subtitles: srt,
-        subtitlesURL:srtURL,
+        subtitlesURL:srtUrl,
     }, { page, request });
 };
