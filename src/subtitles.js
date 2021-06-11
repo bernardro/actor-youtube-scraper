@@ -81,8 +81,8 @@ async function fetchSubtitles(page, language='en') {
         let url = String(script).match(
             /https:\/\/www\.youtube\.com\/api\/timedtext\?v=.*?(?=")/
         ).toString().replace(/\\u0026/g, '&');
-        const subsUserURL = url + `&lang=${language}&fmt=json3`;
-        const subsAutoURL = url + `&lang=${language}&fmt=json3&kind=asr`;
+        const subsUserURL = `${url}&lang=${language}&fmt=json3`;
+        const subsAutoURL = `${url}&lang=${language}&fmt=json3&kind=asr`;
         let json = null;
         let subsType = 'none';
         let response = await fetch(subsUserURL, {method: 'GET'});
