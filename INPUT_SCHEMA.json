@@ -102,7 +102,7 @@
         "saveSubsToKVS": {
             "title" : "Save downloaded subtitles to Key Value Store",
             "type": "boolean",
-            "description" : "If set to true, we will save downloaded (and converted to .srt format) subtitles to Key Value Store in format { subtitles: srt_text, language: languageCode, type:autoOrUserGenerated }. 'downloadSubtitles' must be set to true for this take an effect".
+            "description" : "If set to true, we will save downloaded (and converted to .srt format) subtitles to Key Value Store in format { subtitles: srt_text, language: languageCode, type:autoOrUserGenerated }. 'downloadSubtitles' must be set to true for this take an effect"
         },
         "subtitlesLanguage": {
             "title" : "Download subtitles in selected language.",
@@ -115,6 +115,12 @@
             "title": "Prefer automatically generated subtitles before the user generated ones.",
             "description": "If set to `true` and language is provided, we download automatically generated subtitles rather then user ones. If no language is provided, this settings takes no effect",
             "type": "boolean"
+        },
+        "scrapeCommentCount": {
+            "title" : "Attempt to scrape N comments from video detail page.",
+            "type" : "integer",
+            "description" : "Try to scrape N comments from video detail page. -1 ~ Don't scrape any, 0 ~ Scrape all available comments, 1-x ~ scrape (1-x) comments.",
+            "default": -1
         }
     },
     "required": [
