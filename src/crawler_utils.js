@@ -169,13 +169,18 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
 
     let srt = null;
     let srtUrl = null;
+    let srtType = null;
     if (subtitlesSettings.doDownload) {
-        srt = await fetchSubtitles(page, subtitlesSettings.language);
-        const id = `${videoId}_${subtitlesSettings.language}`;
-        if (srt && subtitlesSettings.saveToKVS) {
-            log.debug('Saving subtitles to KeyValueStore...');
-            await subtitlesSettings.kvs.setValue(id, { subtitles: srt });
-            srtUrl = subtitlesSettings.kvs.getPublicUrl(id);
+        const converter = await fetchSubtitles(page, subtitlesSettings.language);
+        if (converter) {
+            srt = converter.srt;
+            srtType = converter.type;
+            if (subtitlesSettings.saveToKVS) {
+                const id = `${videoId}_${subtitlesSettings.language}`;
+                log.debug('Saving subtitles to KeyValueStore...');
+                await subtitlesSettings.kvs.setValue(id, {subtitles: srt});
+                srtUrl = subtitlesSettings.kvs.getPublicUrl(id);
+            }
         }
     }
 
@@ -194,6 +199,7 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
         details: description,
         text,
         subtitles: srt,
-        subtitlesURL:srtUrl,
+        subtitlesURL: srtUrl,
+        subtitlesType: srtType,
     }, { page, request });
 };

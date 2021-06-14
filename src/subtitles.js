@@ -4,15 +4,16 @@ const fetch = require('node-fetch');
 
 class SrtConvert {
     static TYPE_AUTO_GENERATED = 'auto_generated';
-    static TYPE_USER_GENERATED = 'auto_generated';
+    static TYPE_USER_GENERATED = 'user_generated';
 
     constructor(srtJson, type = SrtConvert.TYPE_AUTO_GENERATED) {
         this._json = srtJson;
         //Type is here only for the info, if we'd like to do something with it later, and also as a safeguard - so
         //it rather booms here than during convert().
-        this._type = type;
-        if (this._type !== SrtConvert.TYPE_AUTO_GENERATED && this._type !== SrtConvert.TYPE_USER_GENERATED) {
-            throw new Error(`Unknown subtitles type ${this._type}`);
+        this.type = type;
+        this.srt = null;
+        if (this.type !== SrtConvert.TYPE_AUTO_GENERATED && this.type !== SrtConvert.TYPE_USER_GENERATED) {
+            throw new Error(`Unknown subtitles type ${this.type}`);
         }
     }
 
@@ -37,6 +38,9 @@ class SrtConvert {
                 }
             }
         }
+
+        this.srt = subtitles;
+
         return subtitles;
     }
 
@@ -60,10 +64,10 @@ class SrtConvert {
 
 }
 
-async function fetchSubtitles(page, language='en') {
+async function fetchSubtitles(page, language = 'en') {
     log.debug(`Fetching subtitles for ${page.url()} ...`);
 
-    let srt = null;
+    let converter = null;
 
     const script = await page.evaluate(() => {
         const scripts = document.body.querySelectorAll('script');
@@ -102,9 +106,9 @@ async function fetchSubtitles(page, language='en') {
         }
         if (json) {
             log.debug(`Subtitle type for ${page.url()} is '${subsType}', link=${url}.`);
-            const converter = new SrtConvert(json, subsType);
+            converter = new SrtConvert(json, subsType);
             log.debug('Converting subtitles JSON -> SRT.');
-            srt = converter.convert();
+            converter.convert();
         } else {
             // Fallback to external try / catch
             throw new Error('No subtitles found.');
@@ -113,7 +117,7 @@ async function fetchSubtitles(page, language='en') {
         log.warning(`No subtitles found for ${page.url()}.`);
     }
 
-    return srt;
+    return converter;
 }
 
 exports.fetchSubtitles = fetchSubtitles;
