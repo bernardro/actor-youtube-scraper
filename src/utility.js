@@ -511,3 +511,122 @@ module.exports.proxyConfiguration = async ({
 
     return configuration;
 };
+/**
+ * Scrape video comments from video detail page.
+ * @param page
+ * @param maxCommentCount: Maximum number of comments to scrape. If < 0, scrape all available comments (Might take a long
+ * time).
+ * @returns {Promise<*>}
+ */
+module.exports.getVideoComments = async (page, maxCommentCount=0) => {
+    // This is copied from SDK - We needed to add stopScrollCallback function parameter to quit scrolling when we have
+    // enough comments scraped. This should be replaced by Apify.utils.puppeteer.infiniteScroll when the SDK will be
+    // updated by stopScrollCallback feature.
+    const infiniteScroll = async (page, options = {}) => {
+        const {timeoutSecs = 0, waitForSecs = 4, scrollDownAndUp = false, buttonSelector, stopScrollCallback} = options;
+        let finished;
+        const startTime = Date.now();
+        const CHECK_INTERVAL_MILLIS = 1000;
+        const SCROLL_HEIGHT_IF_ZERO = 10000;
+        const maybeResourceTypesInfiniteScroll = ['xhr', 'fetch', 'websocket', 'other'];
+        const resourcesStats = {
+            newRequested: 0,
+            oldRequested: 0,
+            matchNumber: 0,
+        };
+        page.on('request', (msg) => {
+            if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType())) {
+                resourcesStats.newRequested++;
+            }
+        });
+        const checkFinished = setInterval(() => {
+            if (resourcesStats.oldRequested === resourcesStats.newRequested) {
+                resourcesStats.matchNumber++;
+                if (resourcesStats.matchNumber >= waitForSecs) {
+                    clearInterval(checkFinished);
+                    finished = true;
+                    return;
+                }
+            } else {
+                resourcesStats.matchNumber = 0;
+                resourcesStats.oldRequested = resourcesStats.newRequested;
+            }
+            // check if timeout has been reached
+            if (timeoutSecs !== 0 && (Date.now() - startTime) / 1000 > timeoutSecs) {
+                clearInterval(checkFinished);
+                finished = true;
+            }
+        }, CHECK_INTERVAL_MILLIS);
+        const doScroll = async () => {
+            /* istanbul ignore next */
+            await page.evaluate(async (scrollHeightIfZero) => {
+                const delta = document.body.scrollHeight === 0 ? scrollHeightIfZero : document.body.scrollHeight;
+                window.scrollBy(0, delta);
+            }, SCROLL_HEIGHT_IF_ZERO);
+        };
+        const maybeClickButton = async () => {
+            const button = await page.$(buttonSelector);
+            // Box model returns null if the button is not visible
+            if (button && await button.boxModel()) {
+                await button.click({delay: 10});
+            }
+        };
+        while (!finished) {
+            await doScroll();
+            await page.waitForTimeout(50);
+            if (scrollDownAndUp) {
+                await page.evaluate(() => {
+                    window.scrollBy(0, -1000);
+                });
+            }
+            if (buttonSelector) {
+                await maybeClickButton();
+            }
+            if (stopScrollCallback) {
+                if (await stopScrollCallback()) {
+                    break;
+                }
+            }
+        }
+    };
+
+    const commentSelector = 'ytd-comment-thread-renderer';
+    // Scroll first to load at lease one comment.
+    await page.evaluate(() => {
+        window.scrollBy(0, 500);
+    });
+    await page.waitForSelector('ytd-comment-thread-renderer');
+    await infiniteScroll(page, {stopScrollCallback:async () => {
+            const commentCount = await page.evaluate(()=>{
+                return document.body.querySelectorAll(commentSelector).length;
+            });
+            log.debug(`Got ${commentCount}/${maxCommentCount} comments for ${page.url()}`)
+            return commentCount >= maxCommentCount && maxCommentCount > 0;
+        }}
+    );
+    const comments = await page.evaluate((max) => {
+        const elements = document.body.querySelectorAll(commentSelector);
+        const a = [];
+        for (let i =0; i < elements.length; i++) {
+            const e = elements[i];
+            const author = e.querySelector('#author-text > span').innerHTML.trim()
+                .replace(/\\n/g, '');
+            if (author) {
+                const comment = e.querySelector('#content-text').innerHTML.trim()
+                    .replace(/\\n/g, '');
+                a.push({
+                    author: author,
+                    comment: comment,
+                });
+            }
+            if (a.length >= max) {
+                break;
+            }
+        }
+        return a;
+    }, maxCommentCount);
+
+    log.info(`Scraped ${comments.length} comments for video ${page.url()}`);
+
+    return comments;
+};
