@@ -176,7 +176,7 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     }
 
     let comments = null;
-    if (scrapeCommentCount > -1) {
+    if (scrapeCommentCount > 0) {
         comments = await utils.getVideoComments(page);
     }
 

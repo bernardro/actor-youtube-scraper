@@ -116,11 +116,11 @@
             "description": "If set to `true` and language is provided, we download automatically generated subtitles rather then user ones. If no language is provided, this settings takes no effect",
             "type": "boolean"
         },
-        "scrapeCommentCount": {
-            "title" : "Attempt to scrape N comments from video detail page.",
+        "maxComments": {
+            "title" : "Max comments",
             "type" : "integer",
-            "description" : "Try to scrape N comments from video detail page. -1 ~ Don't scrape any, 0 ~ Scrape all available comments, 1-x ~ scrape (1-x) comments.",
-            "default": -1
+            "description" : "Limit the number of comments that will get scraped. Scraping comments requires scrolling and takes time. 0 means we will not scrape any comments at all. ",
+            "default": 0
         }
     },
     "required": [

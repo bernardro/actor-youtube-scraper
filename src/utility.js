@@ -601,7 +601,7 @@ module.exports.getVideoComments = async (page, maxCommentCount=0) => {
                 return document.body.querySelectorAll(commentSelector).length;
             });
             log.debug(`Got ${commentCount}/${maxCommentCount} comments for ${page.url()}`)
-            return commentCount >= maxCommentCount && maxCommentCount > 0;
+            return commentCount >= maxCommentCount;
         }}
     );
     const comments = await page.evaluate((max) => {
@@ -612,11 +612,11 @@ module.exports.getVideoComments = async (page, maxCommentCount=0) => {
             const author = e.querySelector('#author-text > span').innerHTML.trim()
                 .replace(/\\n/g, '');
             if (author) {
-                const comment = e.querySelector('#content-text').innerHTML.trim()
+                const text = e.querySelector('#content-text').innerHTML.trim()
                     .replace(/\\n/g, '');
                 a.push({
                     author: author,
-                    comment: comment,
+                    comment: text,
                 });
             }
             if (a.length >= max) {
