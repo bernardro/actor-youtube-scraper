@@ -8,6 +8,7 @@ const { log, sleep } = Apify.utils;
 const utils = require('./utility');
 const CONSTS = require('./consts');
 const { handleErrorAndScreenshot } = require('./utility');
+const { fetchSubtitles } = require('./subtitles');
 
 /**
  * @param {{
@@ -108,7 +109,7 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
     await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
 };
 
-exports.handleDetail = async (page, request, extendOutputFunction) => {
+exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSettings) => {
     const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp, channelXp, subscribersXp, descriptionXp, durationSlctr } = CONSTS.SELECTORS.VIDEO;
 
     log.info(`handling detail url ${request.url}`);
@@ -166,6 +167,23 @@ exports.handleDetail = async (page, request, extendOutputFunction) => {
     const description = await utils.getDataFromXpath(page, descriptionXp, 'innerHTML');
     const text = await utils.getDataFromXpath(page, descriptionXp, 'innerText');
 
+    let srt = null;
+    let srtUrl = null;
+    let srtType = null;
+    if (subtitlesSettings.doDownload) {
+        const converter = await fetchSubtitles(page, subtitlesSettings.language);
+        if (converter) {
+            srt = converter.srt;
+            srtType = converter.type;
+            if (subtitlesSettings.saveToKVS) {
+                const id = `${videoId}_${subtitlesSettings.language}`;
+                log.debug('Saving subtitles to KeyValueStore...');
+                await subtitlesSettings.kvs.setValue(id, {subtitles: srt});
+                srtUrl = subtitlesSettings.kvs.getPublicUrl(id);
+            }
+        }
+    }
+
     await extendOutputFunction({
         title,
         id: videoId,
@@ -180,5 +198,8 @@ exports.handleDetail = async (page, request, extendOutputFunction) => {
         duration: durationStr,
         details: description,
         text,
+        subtitles: srt,
+        subtitlesURL: srtUrl,
+        subtitlesType: srtType,
     }, { page, request });
 };

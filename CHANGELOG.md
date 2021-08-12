@@ -1,3 +1,20 @@
+2021-06-14
+*Features*:
+- Add subtitle type to output (extendedOutputFunction). **Note**: You must set `downloadSubtitles` variable to `true` for this
+  feature to take effect.
+
+2021-06-11
+*Features*:
+- Subtitles are now downloadable (saved to KeyValueStore as `videoID_languageCode`)
+
+2021-05-21
+*Features*:
+- Update SDK
+
+*Fixes*
+- Random zero results when searching
+- Click consent dialog
+
 2021-04-14
 *Fixes*
 - Fixed changed selector that completely prevented the scrape

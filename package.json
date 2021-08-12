@@ -11,12 +11,13 @@
         "pupetteer"
     ],
     "dependencies": {
-        "apify": "^1.1.0",
-        "puppeteer": "*",
-        "moment": "^2.29.1"
+        "apify": "^1.2.1",
+        "moment": "^2.29.1",
+        "node-fetch": "^2.6.1",
+        "puppeteer": "*"
     },
     "devDependencies": {
-        "@apify/eslint-config": "^0.1.3",
+        "@apify/eslint-config": "^0.1.4",
         "@types/puppeteer": "^5.4.2",
         "chai": "^4.2.0",
         "eslint": "7.17.0",

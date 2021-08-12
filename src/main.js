@@ -19,11 +19,14 @@ Apify.main(async () => {
         maxResults,
         postsFromDate,
         handlePageTimeoutSecs = 3600,
+        downloadSubtitles = false,
+        saveSubsToKVS: saveSubtitlesToKVS = false,
+        subtitlesLanguage = 'en',
     } = input;
     if (verboseLog) {
         log.setLevel(log.LEVELS.DEBUG);
     }
-
+    const kvStore = await Apify.openKeyValueStore();
     const requestQueue = await Apify.openRequestQueue();
     const proxyConfig = await utils.proxyConfiguration({
         proxyConfig: proxyConfiguration,
@@ -103,7 +106,7 @@ Apify.main(async () => {
         useSessionPool: true,
         proxyConfiguration: proxyConfig,
         preNavigationHooks: [
-            async ({ page }) => {
+            async ({ page }, gotoOptions) => {
                 await puppeteer.blockRequests(page, {
                     urlPatterns: [
                         '.mp4',
@@ -113,6 +116,7 @@ Apify.main(async () => {
                         '.gif',
                         '.svg',
                         '.ico',
+                        '.png',
                         'google-analytics',
                         'doubleclick.net',
                         'googletagmanager',
@@ -124,6 +128,8 @@ Apify.main(async () => {
                         '/log_event',
                     ],
                 });
+
+                gotoOptions.waitUntil = 'networkidle2';
             },
         ],
         handlePageTimeoutSecs,
@@ -152,6 +158,19 @@ Apify.main(async () => {
                 throw `Response status is: ${response.status()} msg: ${response.statusText()}`;
             }
 
+            if (page.url().includes('consent')) {
+                log.info('Clicking consent dialog');
+
+                await Promise.all([
+                    page.$eval('form[action*="consent"]', (el) => {
+                        el.querySelector('button')?.click();
+                    }),
+                    page.waitForNavigation({ waitUntil: 'networkidle2' }),
+                ]);
+
+                session.retire();
+            }
+
             if (await page.$('.yt-upsell-dialog-renderer')) {
                 // this dialog steal focus, so need to click it
                 await page.evaluate(async () => {
@@ -174,7 +193,17 @@ Apify.main(async () => {
                     break;
                 }
                 case 'DETAIL': {
-                    await crawler.handleDetail(page, request, extendOutputFunction);
+                    await crawler.handleDetail(
+                        page,
+                        request,
+                        extendOutputFunction,
+                        {
+                            doDownload: downloadSubtitles,
+                            saveToKVS: saveSubtitlesToKVS,
+                            language: subtitlesLanguage,
+                            kvs: kvStore,
+                        }
+                    );
                     break;
                 }
                 default: throw new Error('Unknown request label in handlePageFunction');
