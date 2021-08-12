@@ -1,4 +1,4 @@
-FROM apify/actor-node-puppeteer-chrome
+FROM apify/actor-node-puppeteer-chrome:14
 
 # Second, copy just package.json and package-lock.json since they are the only files
 # that affect NPM install in the next step
