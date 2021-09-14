@@ -109,7 +109,7 @@
             "default": {
                 "useApifyProxy": true
             },
-            "sectionCaption": "Proxy and scraper configuration"
+            "sectionCaption": "Proxy and browser configuration"
         },
         "verboseLog": {
             "title": "Verbose log",
