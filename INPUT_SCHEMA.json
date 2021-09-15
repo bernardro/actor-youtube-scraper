@@ -131,7 +131,7 @@
         "maxComments": {
             "title" : "Max comments",
             "type" : "integer",
-            "description" : "Limit the number of comments that will get scraped. Scraping comments requires scrolling and takes time. 0 means we will not scrape any comments at all. ",
+            "description" : "Limit the number of comments that will get scraped. Scraping comments requires scrolling and takes time. 0 or empty means we will not scrape any comments at all. ",
             "default": 0
         }
     },
