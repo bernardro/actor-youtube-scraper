@@ -8,6 +8,7 @@
             "type": "string",
             "description": "What to search Youtube for",
             "editor": "textfield",
+            "prefill": "Madonna",
             "minLength": 3,
             "maxLength" : 250,
             "nullable": false
@@ -22,23 +23,6 @@
             "unit": "Videos",
             "nullable": true
         },
-        "postsFromDate": {
-            "title": "Videos since date",
-            "type": "string",
-            "editor": "textfield",
-            "description": "How far back in history to go e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'No limits' empty the field",
-            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?",
-            "minLength": 0,
-            "maxLength": 16,
-            "prefill": "5 years",
-            "nullable": true
-        },
-        "verboseLog": {
-            "title": "Verbose log",
-            "type": "boolean",
-            "description": "Debug messages will be included in the log.",
-            "default": false
-        },
         "startUrls": {
             "title": "Direct URLs",
             "type": "array",
@@ -46,6 +30,39 @@
             "default": [],
             "editor": "requestListSources",
             "sectionCaption": "Direct URLs"
+        },
+        "postsFromDate": {
+            "title": "Videos till",
+            "type": "string",
+            "editor": "textfield",
+            "description": "How far back in history to go e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'No limits' empty the field",
+            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?",
+            "minLength": 0,
+            "maxLength": 16,
+            "prefill": "5 years",
+            "nullable": true,
+            "sectionCaption": "Time frame"
+        },
+        "downloadSubtitles": {
+            "title" : "Download subtitles",
+            "type": "boolean",
+            "description" : "If set to true, we will also download subtitles for given video and convert it to SRT format",
+            "sectionCaption": "Subtitles",
+            "sectionDescription": "Use this if you want to download video subtitles as well."
+        },
+        "saveSubsToKVS": {
+            "title" : "Save downloaded subtitles to Key Value Store",
+            "type": "boolean",
+            "description" : "If set to true, we will save downloaded (and converted to .srt format) subtitles to Key Value Store in format { subtitles: srt_text }. 'downloadSubtitles' must be set to true for this take an effect"
+        },
+        "subtitlesLanguage": {
+            "title" : "Download subtitles in selected language",
+            "type": "string",
+            "description" : "Language to download subtitles in. 'downloadSubtitles' must be set to true for this take an effect",
+            "editor": "select",
+            "default" : "en",
+            "enum" : ["en", "de", "es", "fr", "it", "ja", "ko", "nl", "pt", "ru"],
+            "enumTitles" : ["English", "German", "Spanish", "French", "Italian", "Japanese", "Korean", "Holland", "Portuguese", "Russian"]
         },
         "extendOutputFunction": {
             "title": "Extend Output Function",
@@ -92,15 +109,10 @@
             "default": {
                 "useApifyProxy": true
             },
-            "sectionCaption": "Proxy configuration"
+            "sectionCaption": "Proxy and browser configuration"
         },
-        "downloadSubtitles": {
-            "title" : "Download subtitles",
-            "type": "boolean",
-            "description" : "If set to true, we will also download subtitles for given video and convert it to SRT format"
-        },
-        "saveSubsToKVS": {
-            "title" : "Save downloaded subtitles to Key Value Store",
+        "verboseLog": {
+            "title": "Verbose log",
             "type": "boolean",
             "description" : "If set to true, we will save downloaded (and converted to .srt format) subtitles to Key Value Store in format { subtitles: srt_text, language: languageCode, type:autoOrUserGenerated }. 'downloadSubtitles' must be set to true for this take an effect"
         },
