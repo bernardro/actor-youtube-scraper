@@ -1,12 +1,13 @@
+## 2021-09-15
+*Features*
+- Add possibility to scrape video comments. See `maxComments` input field.
+
 2021-06-16
 *Features*
 - Revamped subtitles downloading - added possibility to download all available subtitles
   (availability defined by languages) and to prefer automatically generated subtitles before the user generated
   ones.
 
-2021-06-14
-*Features*
-- Add possibility to scrape video comments. See `scrapeCommentCount` input field.
 
 2021-06-14
 *Features*:
