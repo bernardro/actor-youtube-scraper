@@ -109,8 +109,9 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
     await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
 };
 
-exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSettings, scrapeCommentCount= -1) => {
-    const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp, channelXp, subscribersXp, descriptionXp, durationSlctr } = CONSTS.SELECTORS.VIDEO;
+exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSettings, maxComments) => {
+    const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp,
+        channelXp, subscribersXp, descriptionXp, durationSlctr } = CONSTS.SELECTORS.VIDEO;
 
     log.info(`handling detail url ${request.url}`);
 
@@ -176,8 +177,8 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     }
 
     let comments = null;
-    if (scrapeCommentCount > 0) {
-        comments = await utils.getVideoComments(page);
+    if (maxComments > 0) {
+        comments = await utils.getVideoComments(page, maxComments);
     }
 
     await extendOutputFunction({
@@ -194,7 +195,7 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
         duration: durationStr,
         details: description,
         text,
-        subtitles: subtitles,
-        comments: comments,
+        subtitles,
+        comments,
     }, { page, request });
 };

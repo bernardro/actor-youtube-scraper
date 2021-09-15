@@ -38,7 +38,7 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
             await page.waitForSelector(youtubeVideosSection);
             const videoSections = await page.$$(youtubeVideosSection);
 
-            log.debug(`Video sections`, { shouldContinue, videoSections: videoSections.length });
+            log.debug('Video sections', { shouldContinue, videoSections: videoSections.length });
             let videoCount = 0;
 
             for (const videoSection of videoSections) {
@@ -46,7 +46,7 @@ exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResult
                 await page.waitForSelector(youtubeVideosRenderer);
                 const videos = await videoSection.$$(youtubeVideosRenderer);
 
-                log.debug(`Videos count`, { shouldContinue, videos: videos.length });
+                log.debug('Videos count', { shouldContinue, videos: videos.length });
 
                 for (const video of videos) {
                     try {
@@ -513,17 +513,16 @@ module.exports.proxyConfiguration = async ({
 };
 /**
  * Scrape video comments from video detail page.
- * @param page
- * @param maxCommentCount: Maximum number of comments to scrape. If < 0, scrape all available comments (Might take a long
- * time).
+ * @param {Puppeteer.Page} page
+ * @param {number} maxComments: Maximum number of comments to scrape.
  * @returns {Promise<*>}
  */
-module.exports.getVideoComments = async (page, maxCommentCount=0) => {
+module.exports.getVideoComments = async (page, maxComments) => {
     // This is copied from SDK - We needed to add stopScrollCallback function parameter to quit scrolling when we have
     // enough comments scraped. This should be replaced by Apify.utils.puppeteer.infiniteScroll when the SDK will be
     // updated by stopScrollCallback feature.
     const infiniteScroll = async (page, options = {}) => {
-        const {timeoutSecs = 0, waitForSecs = 4, scrollDownAndUp = false, buttonSelector, stopScrollCallback} = options;
+        const { timeoutSecs = 0, waitForSecs = 4, scrollDownAndUp = false, buttonSelector, stopScrollCallback } = options;
         let finished;
         const startTime = Date.now();
         const CHECK_INTERVAL_MILLIS = 1000;
@@ -568,7 +567,7 @@ module.exports.getVideoComments = async (page, maxCommentCount=0) => {
             const button = await page.$(buttonSelector);
             // Box model returns null if the button is not visible
             if (button && await button.boxModel()) {
-                await button.click({delay: 10});
+                await button.click({ delay: 10 });
             }
         };
         while (!finished) {
@@ -596,18 +595,17 @@ module.exports.getVideoComments = async (page, maxCommentCount=0) => {
         window.scrollBy(0, 500);
     });
     await page.waitForSelector('ytd-comment-thread-renderer');
-    await infiniteScroll(page, {stopScrollCallback:async () => {
-            const commentCount = await page.evaluate(()=>{
-                return document.body.querySelectorAll(commentSelector).length;
-            });
-            log.debug(`Got ${commentCount}/${maxCommentCount} comments for ${page.url()}`)
-            return commentCount >= maxCommentCount;
-        }}
-    );
-    const comments = await page.evaluate((max) => {
+    await infiniteScroll(page, { stopScrollCallback: async () => {
+        const commentCount = await page.evaluate((commentSelector) => {
+            return document.body.querySelectorAll(commentSelector).length;
+        }, commentSelector);
+        log.debug(`Got ${commentCount}/${maxComments} comments for ${page.url()}`);
+        return commentCount >= maxComments;
+    } });
+    const comments = await page.evaluate((max, commentSelector) => {
         const elements = document.body.querySelectorAll(commentSelector);
         const a = [];
-        for (let i =0; i < elements.length; i++) {
+        for (let i = 0; i < elements.length; i++) {
             const e = elements[i];
             const author = e.querySelector('#author-text > span').innerHTML.trim()
                 .replace(/\\n/g, '');
@@ -615,7 +613,7 @@ module.exports.getVideoComments = async (page, maxCommentCount=0) => {
                 const text = e.querySelector('#content-text').innerHTML.trim()
                     .replace(/\\n/g, '');
                 a.push({
-                    author: author,
+                    author,
                     comment: text,
                 });
             }
@@ -624,7 +622,7 @@ module.exports.getVideoComments = async (page, maxCommentCount=0) => {
             }
         }
         return a;
-    }, maxCommentCount);
+    }, maxComments, commentSelector);
 
     log.info(`Scraped ${comments.length} comments for video ${page.url()}`);
 
