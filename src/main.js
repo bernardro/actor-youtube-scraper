@@ -17,7 +17,7 @@ Apify.main(async () => {
         proxyConfiguration,
         searchKeywords,
         maxResults,
-        videsFromDate,
+        videosFromDate,
         videosToDate,
         postsFromDate,
         handlePageTimeoutSecs = 3600,
@@ -31,7 +31,7 @@ Apify.main(async () => {
         log.setLevel(log.LEVELS.DEBUG);
     }
 
-    const minMaxDate = time.minMaxDates({ min: videsFromDate || new Date(Date.now()/1000) , max: videosToDate || new Date()});
+    const minMaxDate = time.minMaxDates({ min: videosFromDate || new Date(Date.now()/1000) , max: videosToDate || new Date()});
     const kvStore = await Apify.openKeyValueStore();
     const requestQueue = await Apify.openRequestQueue();
     const proxyConfig = await utils.proxyConfiguration({
@@ -87,9 +87,8 @@ Apify.main(async () => {
 
     const extendOutputFunction = await utils.extendFunction({
         filter: async ({ item }) => {
-            // compare timestamp on posts or comments
+            // get videos only between specified dates
             const attachedDate = item.date;
-            console.log(attachedDate);
 
             return attachedDate
                 ? minMaxDate.compare(attachedDate)
