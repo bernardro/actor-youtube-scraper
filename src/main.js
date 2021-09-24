@@ -2,7 +2,7 @@ const Apify = require('apify');
 
 const utils = require('./utility');
 const crawler = require('./crawler_utils');
-
+const { time } = require('apify-utils');
 const { log, puppeteer } = Apify.utils;
 
 Apify.main(async () => {
@@ -17,6 +17,8 @@ Apify.main(async () => {
         proxyConfiguration,
         searchKeywords,
         maxResults,
+        fromDate,
+        toDate,
         postsFromDate,
         handlePageTimeoutSecs = 3600,
         downloadSubtitles = false,
@@ -28,6 +30,8 @@ Apify.main(async () => {
     if (verboseLog) {
         log.setLevel(log.LEVELS.DEBUG);
     }
+
+    const minMaxDate = time.minMaxDates({ min: fromDate || new Date(Date.now()/1000) , max: toDate || new Date()});
     const kvStore = await Apify.openKeyValueStore();
     const requestQueue = await Apify.openRequestQueue();
     const proxyConfig = await utils.proxyConfiguration({
@@ -82,6 +86,15 @@ Apify.main(async () => {
     }
 
     const extendOutputFunction = await utils.extendFunction({
+        filter: async ({ item }) => {
+            // compare timestamp on posts or comments
+            const attachedDate = item.date;
+            console.log(attachedDate);
+
+            return attachedDate
+                ? minMaxDate.compare(attachedDate)
+                : true;
+        },
         input,
         key: 'extendOutputFunction',
         output: async (data) => {
