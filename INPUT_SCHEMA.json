@@ -31,6 +31,28 @@
             "editor": "requestListSources",
             "sectionCaption": "Direct URLs"
         },
+        "videosFromDate": {
+            "title": "Videos from",
+            "type": "string",
+            "editor": "textfield",
+            "description": "Scrape the videos from the date e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'Earliest' empty the field",
+            "pattern": "^(today|yesterday|\\d+\\s?(minute|second|day|hour|month|year|week)s?|\\d{4}\\-\\d{2}\\-\\d{2}(\\s\\d{2}\\:\\d{2}\\:\\d{2})?)$",
+            "minLength": 0,
+            "maxLength": 16,
+            "nullable": true,
+            "sectionCaption": "Videos from:"
+        },
+        "videosToDate": {
+            "title": "Videos till",
+            "type": "string",
+            "editor": "textfield",
+            "description": "Scrape the videos until the date e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'Today' empty the field",
+            "pattern": "^(today|yesterday|\\d+\\s?(minute|second|day|hour|month|year|week)s?|\\d{4}\\-\\d{2}\\-\\d{2}(\\s\\d{2}\\:\\d{2}\\:\\d{2})?)$",
+            "minLength": 0,
+            "maxLength": 16,
+            "nullable": true,
+            "sectionCaption": "Videos until:"
+        },
         "postsFromDate": {
             "title": "Videos till",
             "type": "string",
