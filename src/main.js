@@ -16,9 +16,8 @@ Apify.main(async () => {
         proxyConfiguration,
         searchKeywords,
         maxResults,
-        videosFromDate,
-        videosToDate,
         postsFromDate,
+        postsToDate,
         handlePageTimeoutSecs = 3600,
         downloadSubtitles = false,
         saveSubsToKVS: saveSubtitlesToKVS = false,
@@ -31,7 +30,7 @@ Apify.main(async () => {
         log.setLevel(log.LEVELS.DEBUG);
     }
 
-    const minMaxDate = utils.minMaxDates({ min: videosFromDate , max: videosToDate });
+    const minMaxDate = utils.minMaxDates({ min: postsFromDate , max: postsToDate });
     const kvStore = await Apify.openKeyValueStore();
     const requestQueue = await Apify.openRequestQueue();
     const proxyConfig = await utils.proxyConfiguration({
