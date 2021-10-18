@@ -317,7 +317,6 @@ exports.minMaxDates = ({ min, max }) => {
 
     min = min && min.includes(' ago') ? min.replace(' ago', '') : min;
     max = max && max.includes(' ago') ? max.replace(' ago', '') : max;
-    console.log(min,max)
     const minDate = parseTimeUnit(min);
     const maxDate = parseTimeUnit(max);
 
