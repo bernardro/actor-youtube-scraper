@@ -1,4 +1,3 @@
-## Features
 Using the **YouTube scraper**, you can extract data from keyword search results, scrape detailed data on videos, like and dislike ratio and channels, download captions and scrape comment sections. 
 
 Unlike with the [official YouTube API](https://developers.google.com/youtube/v3), with this YouTube scraper, you can scrape the results without quota limits and log in requirement. 
