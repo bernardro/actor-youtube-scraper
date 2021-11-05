@@ -1,45 +1,57 @@
-# Youtube Scraper
+## Features
+Using the **YouTube scraper**, you can extract data from keyword search results, scrape detailed data on videos, like and dislike ratio and channels, download captions and scrape comment sections. 
 
-## Youtube Scraper powered by Apify's Puppeteer crawler
+Unlike with the [official YouTube API](https://developers.google.com/youtube/v3), with this YouTube scraper, you can scrape the results without quota limits and log in requirement. 
 
-Youtube has an API that gives access to search data as well as detailed data on each video. However, it requires you to log in and imposes quota limits on each API endpoint.
+Our YouTube API is open-source and you can easily run it locally or on your system. Contributions are welcome.
 
-That is why Youtube Scraper was created and implemented as an [actor](https://apify.com/actors) to run on the [Apify platform](https://apify.com). This scraper is open-source and you can easily run it locally or on your system. Contributions are welcome.
+## Features
 
-Features of Youtube Scraper:
-- Scrape videos by specifying a search keyword(s) or URLs to get [video details](#scraper-output):
-- Limit the videos returned by upload date by entering a date in an easy-read format e.g "2 weeks ago"
-- Limit the number of videos returned for each search or channel (focusing on the top videos)
+- Scrape videos by specifying a multiple search keywords or URLs to get [video details](https://apify.com/bernardo/youtube-scraper#scraper-output), including e.g. like/dislike ratio.
+- Scrape channel details (username, description, number of subscribers etc.)
+- **[NEW]** Scrape and download YouTube subtitles and captions (both auto- and user-generated) in any language from any country. 
+- **[NEW]** Scrape YouTube comment section.
 
-## Table of contents
-- [Input parameters](#input-parameters)
-- [During the run](#during-the-run)
-- [Scraper output](#scraper-output)
-- [Planned features](#planned-features)
-- [Changelog](#changelog)
-- [Notes for developers](#notes-for-developers)
+## Tutorial
+
+For a more detailed explanation of [how to scrape YouTube](https://blog.apify.com/how-to-scrape-youtube) read a step-by-step tutorial on our [blog](https://blog.apify.com/).
+
+And for more ideas on how to use the extracted data, check out our [industries pages](https://apify.com/industries) for concrete ways web scraping results are already being used across the projects and businesses of various scale and direction - in [media and marketing](https://apify.com/industries/marketing-and-media), for instance.
+
+## Cost of usage
+
+On average, scraping **1000 items** from YouTube via Apify platform will cost you around **2.5 USD credits** off your subscription plan. For more details about the plans we offer, platform credits and usage, see the [platform pricing page](https://apify.com/pricing/actors).
+
+If you're not sure how much credits you've got left on your plan and whether you might need to upgrade, you can always check your limits in the *Settings* -> *Usage and Billing* tab in [your Console](https://console.apify.com/).  
+The easiest way to know how many credits your actor will need is to perform a test run. 
+
+### Proxy usage
+This actor, as most [social media-related scrapers](https://apify.com/store?category=SOCIAL_MEDIA), requires **Proxy servers** to run properly. You can use either your own proxy servers or you can use  [Apify Proxies](https://www.apify.com/docs/proxy). We recommend using [dataset proxies](https://help.apify.com/en/articles/5265932-what-is-a-proxy) to achieve the best scraping potential of this actor.
 
 ## Input parameters
-The input of this actor should be JSON specifying what to search for on Youtube.
-If this actor is run on the Apify platform a user-friendly graphical interface will be provided for you to configure the scraper before running it.
-This actor recognizes the following input fields:
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| searchKeywords | String | (optional) Query to search Youtube for |
-| maxResults | Integer | (optional) How many videos should be loaded from each search or channel, default is 50 |
-| postsToDate | String | (optional) How far back in history to go, default is "5 years ago". You can also use *minutes*,*hours*,*days*,*weeks* and *months* |
-| postsFromDate | String | (optional) How far back in history to go, leave empty to go to the earliest date. You can also use *minutes*,*hours*,*days*,*weeks* and *months* |
-| startUrls | String | (optional) Starting Youtube URLs, you can provide search, channel or videos urls |
-| proxyConfiguration | Object | Proxy configuration |
-| verboseLog | Boolean | Whether to turn on verbose logging |
+If this actor is run on our [Platform](https://console.apify.com/), a user-friendly UI there will help you out in configuring all the necessary and optional parameters of this scraper before running it. Our YouTube actor recognizes the following input fields:
 
+ - **searchKeywords** - Your YouTube search query, say *Nimbus 2000 reviews*; this one can be used instead of a URL.
+	 -  **startUrls** - A more accurate alternative to **searchKeywords**. By inserting specific URLs from YouTube you can provide search, channel or videos URLs.
+ - **maxResults** - sets how many videos should be scraped from each search or channel. Defaults to 50, but you can leave it empty for unlimited search.
+ - **maxComments** - Limits the number of comments that you want to scrape.  0 or empty means no comments will be scraped.
+ - Using both **postsFromDate** and **postsToDate** can help you set up a *timeframe of videos* you want to scrape, e.g. *from 5 years ago till 1 minute ago*.
+	 - **postsFromDate** -  Indicates the range of how far back in YouTube history the actor should go; defaults to videos from *5 years ago*. You can also use  _minutes_, _hours_, _days_, _weeks_  and  _months_.
+	 - **postsToDate** -  Indicates the upper bound of the timerange. Here you can also use  _minutes_, _hours_, _days_, _weeks_  and  _months_. For example, to *1 day  ago*.
 
-This solution requires the use of **Proxy servers**, either your own proxy servers or you can use <a href="https://www.apify.com/docs/proxy">Apify Proxy</a>.
+ - **downloadSubtitles** - Scrape both user-generated and auto-generated captions and convert them to SRT format. Boolean value, defaults to false.
+	 - **subtitlesLanguage** - Download only subtitles of the selected language (possible values `"en"`, `"de"`, `"es"`...)
+	 - **preferAutoGeneratedSubtitles** -  Prefer the autogenerated speech-to-text subtitles to the user made ones.
+	 - **saveSubsToKVS** - Saves the scraped subtitles in the *Apify Key Value Store*.
+ - **proxyConfiguration** *(required)* - Configures proxy settings
+ - **verboseLog** *(required)* - Turns on verbose logging for accurate monitoring and having more details about the runs.
+ 
+*See more technical details of the input parameters in the [Input Schema tab](https://apify.com/bernardo/youtube-scraper/input-schema#searchKeywords) of this actor.*
 
-### Youtube scraper Input example
+### Example
 
-```jsonc
+```json
 {
     "searchKeywords": "Terminator dark fate",
     "maxResults": 30,
@@ -57,32 +69,15 @@ This solution requires the use of **Proxy servers**, either your own proxy serve
     },
     "verboseLog": false
 }
+
 ```
-## During the run
-
-During the run, the actor will output messages letting you know what it is doing and which youtube URL is being processed.
-
-If an error occurs there will be a detail error log in the run console as well as in the output dataset.
 
 
-## Scraper output
+## YouTube Scraper output
 
-As the actor runs, the actor stores results into a dataset. Each Youtube video becomes a separate item in the dataset (example below).
+After the actor finishes the run, it will store the scraped results in a the *Dataset*. Each YouTube video becomes a separate record in the dataset  (see a JSON example below). Using the Apify platform, you can choose to present and download the contents of the dataset in different data formats (JSON, RSS, XML, HTML Table...).
 
-The actor converts Youtube data into a form that can be compared and analyzed as exemplified in the table below:
-
-| # Likes | Output |
-| ----- | ---- |
-| 1.2M | 1200000 |
-| 1.65K | 1650 |
-| 1.65M | 1650000 |
-
-The output can then be easily manipulated in any language (Python, PHP, Node JS/NPM).
-
-See the <a href="https://www.apify.com/docs/api" target="blank">Apify API reference</a> to learn more about getting results from this Youtube actor.
-
-Here is a sample of the output (long lines shortened):
-
+### Example
 ```json
 {
   "title": "Terminator: Dark Fate - Official Trailer (2019) - Paramount Pictures",
@@ -97,41 +92,42 @@ Here is a sample of the output (long lines shortened):
   "numberOfSubscribers": 1660000,
   "details": "Welcome to the day after <a class=\"yt-simple-endpoint style-sco..."
 }
+
 ```
+See the  [Apify API reference](https://www.apify.com/docs/api)  to learn in more detail about getting results from this YouTube Scraper.
 
-## Planned features
-- Scraping comments on a video
-- Scraping channel details
+### **How can you use the data extracted from YouTube:**
 
+- **Compile reviews of products and services** - make purchasing and investment decisions backed by data.
+
+- **Monitor YouTube for brand awareness** - keep track of brand mentions, audience reach and web reputation.
+
+- **Estimate the impact of YouTube campaigns** - estimate ROI for advertisement or referrals from YouTube channels and scale marketing campaigns accordingly.
+
+-  **Apply scraped data in journalism** - track down and tackle fake news, bot activity, as well as illegal, misleading or harmful content. Dissect big news topics and analyze sentiment on web.
+-   **Collect data for any kind of research** -  identify and follow emerging trends or topics and even predict the new ones: globally or by country and language.
 ## Changelog
-Changes related to the new versions are listed in the [CHANGELOG.md](https://github.com/bernardro/actor-youtube-scraper/blob/master/CHANGELOG.md) file.
 
-## Notes for developers
+You can see all newest changes to this YouTube scraper listed in this  [CHANGELOG.md](https://github.com/bernardro/actor-youtube-scraper/blob/master/CHANGELOG.md) file.
 
-Typical usage on Apify platform using 4096MB for memory is shown below:
+## Notes for the developers on customizing the actor
+Here are the calculations for a typical resource usage of YouTube Scraper on Apify platform:
 
-| Resource | Average | Max |
-| ----- | ---- | ----------- |
-| Memory | 480.3 MB | 1.1 GB |
+| **Resource** | **Average** | **Max** |
+|--|--|--|
+|  Memory| 480.3 MB | 1.1 GB |
 | CPU | 53% | 140% |
 
-This actor manipulates the mouse and keyboard like a real user would.
+This actor uses xPaths to find DOM elements; they are all stored in one file for easy update. All xPath variables and functions end in 'Xp'. The logic of the actor makes use of YouTube's own date filters because:
 
-It uses xPaths to find DOM elements; they are all stored in one file for easy update.
+-   YouTube does not by default show videos in chronological order. The order of videos is usually related to the number of likes, subscribers, etc.
+-   There is no way to give YouTube an exact cutoff date (unless you use YouTube's developer [official API](https://developers.google.com/youtube/v3).
+-   YouTube has a separate filter that toggles sorting by date. 
+So when a user requests videos *from 5 days ago*, we apply YouTube's *This week* filter as well as the *Sort by Upload date* filter. 
 
-All xPath variables and functions end in 'Xp'.
+### Extend output function
 
-The logic of the actor makes use of Youtube's own date filters because:
- - Youtube does not by default show videos in chronological order.
-   The order of videos is related to the number of likes, subscribers, etc.
- - There is no way to give Youtube an exact cutoff date (unless you use Youtube's developer API)
- - Youtube has a separate filter that toggles sorting by date
-
-So when a user requests videos from "5 days ago", we apply Youtube's "This week" filter as well as the "Sort by Upload date" filter.
-
-## Extend output function
-
-Extend output function allows you to omit output, add some extra properties to the output by using the `page` variable or change the shape of your output altogether:
+Extend output function allows you to omit output, add some extra properties to the output by using the  `page`  variable or change the shape of your output altogether:
 
 ```js
 async ({ item }) => {
@@ -166,11 +162,9 @@ async ({ item }) => {
 }
 ```
 
-## Extend scraper function
+### Extend scraper function
 
-Extend scraper function allows you to add functionality to the existing baseline behavior.
-
-For example, you may enqueue related videos, but not recursively
+Extend scraper function allows you to add functionality to the existing baseline behavior. For example, you may enqueue related videos, but not recursively:
 
 ```js
 async ({ page, request, requestQueue, customData, Apify }) => {
@@ -194,8 +188,20 @@ async ({ page, request, requestQueue, customData, Apify }) => {
 }
 ```
 
-NB.: if this function throws, it will retry the same url it's visiting again
+*NB: If this specific function throws an exception, it will retry the same URL it was visiting again.*
 
-## Acknowledgments
+## Acknowledgments and personal data
 
-This scraper clicks cookies and privacy consent dialogs in your behalf
+This scraper collects cookies and privacy consent dialogs on your behalf. Therefore, you should be aware that the results from your YouTube scraping might contain personal data. 
+
+Personal data is protected by GDPR ([EU Regulation 2016/679](https://eur-lex.europa.eu/eli/reg/2016/679/oj)),  and by other regulations around the world. You should **not** scrape personal data unless you have a legitimate reason to do so. 
+
+If you're unsure whether your reason is legitimate, consult your lawyers. You can also read our blog post on the  [legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
+
+## Other video and social media scrapers
+
+We have other video-related scrapers in stock for you; to see more of those, check out the [Video Category in Apify Store](https://apify.com/store?category=VIDEOS) or the compilation of [Social Media Scrapers](https://apify.com/store?category=SOCIAL_MEDIA). 
+
+## Your feedback
+
+We’re always working on improving the performance of our actors. So if you’ve got any technical feedback about the work of our YouTube API, or simply **found a bug,** please create an issue on the [Github page](https://github.com/bernardro/actor-youtube-scraper) and we’ll get to it.
