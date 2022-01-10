@@ -14,8 +14,7 @@
         "apify": "^1.2.1",
         "moment": "^2.29.1",
         "node-fetch": "^2.6.1",
-        "puppeteer": "*",
-        "apify-utils": "https://github.com/metalwarrior665/apify-utils.git#1.0.1"
+        "puppeteer": "*"
     },
     "devDependencies": {
         "@apify/eslint-config": "^0.1.4",
