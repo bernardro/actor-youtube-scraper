@@ -31,7 +31,7 @@
             "editor": "requestListSources",
             "sectionCaption": "Direct URLs"
         },
-        "videosFromDate": {
+        "fromDate": {
             "title": "Videos from",
             "type": "string",
             "editor": "textfield",
@@ -39,11 +39,11 @@
             "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?",
             "minLength": 0,
             "maxLength": 16,
-            "prefill": "01-01-2000",
+            "prefill": "1 years",
             "nullable": true,
-            "sectionCaption": "Videos from:"
+            "sectionCaption": "Time frame"
         },
-        "videosToDate": {
+        "toDate": {
             "title": "Videos till",
             "type": "string",
             "editor": "textfield",
@@ -51,9 +51,9 @@
             "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?",
             "minLength": 0,
             "maxLength": 16,
-            "prefill": "",
+            "prefill": "5 years",
             "nullable": true,
-            "sectionCaption": "Videos until:"
+            "sectionCaption": "Time frame"
         },
         "postsFromDate": {
             "title": "Videos till",
