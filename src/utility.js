@@ -277,6 +277,77 @@ exports.isDateInputValid = (postsFromDate) => {
 };
 
 /**
+ * @param {any} value
+ * @returns {moment.Moment | null}
+ */
+const parseTimeUnit = (value) => {
+    if (!value) {
+        return null;
+    }
+
+    if (value === 'today' || value === 'yesterday') {
+        return (value === 'today' ? moment() : moment().subtract(1, 'day')).startOf('day');
+    }
+
+    const [, number, unit] = `${value}`.match(/^(\d+)\s?(minute|second|day|hour|month|year|week)s?$/i) || [];
+
+    if (+number && unit) {
+        return moment().subtract(+number, unit);
+    }
+
+    return moment(value);
+}
+
+/**
+ * @typedef {ReturnType<typeof minMaxDates>} MinMaxDates
+ * @typedef {{ min?: number | string; max?: number | string; }} MinMax
+ */
+
+/**
+ * Generate a function that can check date intervals depending on the input
+ *
+ * @example
+ *    const checkDate = minMaxDates({ min: '1 month', max: '2021-03-10' });
+ *    checkDate.compare('2021-02-09');
+ *
+ * @param {MinMax} params
+ */
+
+exports.minMaxDates = ({ min, max }) => {
+
+    min = min && min.includes(' ago') ? min.replace(' ago', '') : min;
+    max = max && max.includes(' ago') ? max.replace(' ago', '') : max;
+    const minDate = parseTimeUnit(min);
+    const maxDate = parseTimeUnit(max);
+
+    if (minDate && maxDate && maxDate.diff(minDate) < 0) {
+        throw new Error(`Minimum date ${minDate.toString()} needs to be less than max date ${maxDate.toString()}`);
+    }
+
+    return {
+        /**
+         * cloned min date, if set
+         */
+        get minDate() {
+            return minDate?.clone();
+        },
+        /**
+         * cloned max date, if set
+         */
+        get maxDate() {
+            return maxDate?.clone();
+        },
+        /**
+         * compare the given date/timestamp to the time interval
+         */
+        compare(time) {
+            const base = moment(time);
+            return (minDate ? minDate.diff(base) <= 0 : true) && (maxDate ? maxDate.diff(base) >= 0 : true);
+        },
+    };
+};
+
+/**
  * @param {string} postsFromDate
  */
 exports.getYoutubeDateFilters = (postsFromDate) => {

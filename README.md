@@ -43,7 +43,8 @@ This solution requires the use of **Proxy servers**, either your own proxy serve
 {
     "searchKeywords": "Terminator dark fate",
     "maxResults": 30,
-    "postsFromDate": "2 weeks ago",
+    "postsToDate": "2 days",
+    "postsFromDate": "2 weeks",
     "startUrls": [{
         "url": "https://www.youtube.com/channel/UC8w/videos" // channel videos
     }, {

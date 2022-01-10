@@ -17,6 +17,7 @@ Apify.main(async () => {
         searchKeywords,
         maxResults,
         postsFromDate,
+        postsToDate,
         handlePageTimeoutSecs = 3600,
         downloadSubtitles = false,
         saveSubsToKVS: saveSubtitlesToKVS = false,
@@ -29,6 +30,7 @@ Apify.main(async () => {
         log.setLevel(log.LEVELS.DEBUG);
     }
 
+    const minMaxDate = utils.minMaxDates({ min: postsFromDate , max: postsToDate });
     const kvStore = await Apify.openKeyValueStore();
     const requestQueue = await Apify.openRequestQueue();
     const proxyConfig = await utils.proxyConfiguration({
@@ -83,6 +85,13 @@ Apify.main(async () => {
     }
 
     const extendOutputFunction = await utils.extendFunction({
+        filter: async ({ item }) => {
+            // get videos only between specified dates
+            const attachedDate = item.date;
+            return attachedDate
+                ? minMaxDate.compare(attachedDate)
+                : true;
+        },
         input,
         key: 'extendOutputFunction',
         output: async (data) => {
