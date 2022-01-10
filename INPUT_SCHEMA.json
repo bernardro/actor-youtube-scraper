@@ -31,8 +31,19 @@
             "editor": "requestListSources",
             "sectionCaption": "Direct URLs"
         },
-        "postsToDate": {
-            "title": "Videos to",
+        "videosFromDate": {
+            "title": "Videos from",
+            "type": "string",
+            "editor": "textfield",
+            "description": "Scrape the videos from the date e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'Earliest' empty the field",
+            "pattern": "^(today|yesterday|\\d+\\s?(minute|second|day|hour|month|year|week)s?|\\d{4}\\-\\d{2}\\-\\d{2}(\\s\\d{2}\\:\\d{2}\\:\\d{2})?)$",
+            "minLength": 0,
+            "maxLength": 16,
+            "nullable": true,
+            "sectionCaption": "Videos from:"
+        },
+        "videosToDate": {
+            "title": "Videos till",
             "type": "string",
             "editor": "textfield",
             "description": "Scrape the videos until the date e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'Today' empty the field",
@@ -40,18 +51,19 @@
             "minLength": 0,
             "maxLength": 16,
             "nullable": true,
-            "sectionCaption": "Videos to:"
+            "sectionCaption": "Videos until:"
         },
         "postsFromDate": {
-            "title": "Videos from",
+            "title": "Videos till",
             "type": "string",
             "editor": "textfield",
             "description": "How far back in history to go e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'No limits' empty the field",
-            "pattern": "^(today|yesterday|\\d+\\s?(minute|second|day|hour|month|year|week)s?|\\d{4}\\-\\d{2}\\-\\d{2}(\\s\\d{2}\\:\\d{2}\\:\\d{2})?)$",
+            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?",
             "minLength": 0,
             "maxLength": 16,
+            "prefill": "5 years",
             "nullable": true,
-            "sectionCaption": "Videos from:"
+            "sectionCaption": "Time frame"
         },
         "downloadSubtitles": {
             "title" : "Download subtitles",

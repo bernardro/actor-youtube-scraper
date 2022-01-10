@@ -28,8 +28,7 @@ This actor recognizes the following input fields:
 | ----- | ---- | ----------- |
 | searchKeywords | String | (optional) Query to search Youtube for |
 | maxResults | Integer | (optional) How many videos should be loaded from each search or channel, default is 50 |
-| postsToDate | String | (optional) How far back in history to go, default is "5 years ago". You can also use *minutes*,*hours*,*days*,*weeks* and *months* |
-| postsFromDate | String | (optional) How far back in history to go, leave empty to go to the earliest date. You can also use *minutes*,*hours*,*days*,*weeks* and *months* |
+| postsFromDate | String | (optional) How far back in history to go, default is "5 years ago". You can also use *minutes*,*hours*,*days*,*weeks* and *months* |
 | startUrls | String | (optional) Starting Youtube URLs, you can provide search, channel or videos urls |
 | proxyConfiguration | Object | Proxy configuration |
 | verboseLog | Boolean | Whether to turn on verbose logging |
@@ -43,8 +42,9 @@ This solution requires the use of **Proxy servers**, either your own proxy serve
 {
     "searchKeywords": "Terminator dark fate",
     "maxResults": 30,
-    "postsToDate": "2 days",
-    "postsFromDate": "2 weeks",
+    "videosFromDate": "2 years",
+    "videosToDate": "2021-09-24",
+    "postsFromDate": "2 weeks ago",
     "startUrls": [{
         "url": "https://www.youtube.com/channel/UC8w/videos" // channel videos
     }, {
