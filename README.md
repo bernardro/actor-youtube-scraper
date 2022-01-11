@@ -203,3 +203,4 @@ We have other video-related scrapers in stock for you; to see more of those, che
 ## Your feedback
 
 We’re always working on improving the performance of our actors. So if you’ve got any technical feedback about the work of our YouTube API, or simply **found a bug,** please create an issue on the [Github page](https://github.com/bernardro/actor-youtube-scraper) and we’ll get to it.
+
