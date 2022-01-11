@@ -29,13 +29,14 @@ This actor, as most [social media-related scrapers](https://apify.com/store?cate
 
 ## Input parameters
 
+If this actor is run on our [Platform](https://console.apify.com/), a user-friendly UI there will help you out in configuring all the necessary and optional parameters of this scraper before running it. Our YouTube actor recognizes the following input fields:
+
  - **searchKeywords** - Your YouTube search query, say *Nimbus 2000 reviews*; this one can be used instead of a URL.
 	 -  **startUrls** - A more accurate alternative to **searchKeywords**. By inserting specific URLs from YouTube you can provide search, channel or videos URLs.
  - **maxResults** - sets how many videos should be scraped from each search or channel. Defaults to 50, but you can leave it empty for unlimited search.
  - **maxComments** - Limits the number of comments that you want to scrape.  0 or empty means no comments will be scraped.
  - Using both **postsFromDate** and **postsToDate** can help you set up a *timeframe of videos* you want to scrape, e.g. *from 5 years ago till 1 minute ago*.
-	 - **postsFromDate** -  Indicates the range of how far back in YouTube history the actor should go; defaults to videos from *5 years ago*. You can also use  _minutes_, _hours_, _days_, _weeks_  and  _months_.
-	 - **postsToDate** -  Indicates the upper bound of the timerange. Here you can also use  _minutes_, _hours_, _days_, _weeks_  and  _months_. For example, to *1 day  ago*.
+	 - **postsFromDate** -  Indicates the range of how far back in YouTube history the actor should go; defaults to videos from *5 years ago*.
 
  - **downloadSubtitles** - Scrape both user-generated and auto-generated captions and convert them to SRT format. Boolean value, defaults to false.
 	 - **subtitlesLanguage** - Download only subtitles of the selected language (possible values `"en"`, `"de"`, `"es"`...)
@@ -52,7 +53,8 @@ This actor, as most [social media-related scrapers](https://apify.com/store?cate
 {
     "searchKeywords": "Terminator dark fate",
     "maxResults": 30,
-    "postsFromDate": "2 weeks ago",
+    "postsToDate": "2 days",
+    "postsFromDate": "2 weeks",
     "startUrls": [{
         "url": "https://www.youtube.com/channel/UC8w/videos" // channel videos
     }, {
