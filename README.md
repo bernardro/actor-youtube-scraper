@@ -36,8 +36,7 @@ If this actor is run on our [Platform](https://console.apify.com/), a user-frien
  - **maxResults** - sets how many videos should be scraped from each search or channel. Defaults to 50, but you can leave it empty for unlimited search.
  - **maxComments** - Limits the number of comments that you want to scrape.  0 or empty means no comments will be scraped.
  - Using both **postsFromDate** and **postsToDate** can help you set up a *timeframe of videos* you want to scrape, e.g. *from 5 years ago till 1 minute ago*.
-	 - **postsFromDate** -  Indicates the range of how far back in YouTube history the actor should go; defaults to videos from *5 years ago*. You can also use  _minutes_, _hours_, _days_, _weeks_  and  _months_.
-	 - **postsToDate** -  Indicates the upper bound of the timerange. Here you can also use  _minutes_, _hours_, _days_, _weeks_  and  _months_. For example, to *1 day  ago*.
+	 - **postsFromDate** -  Indicates the range of how far back in YouTube history the actor should go; defaults to videos from *5 years ago*.
 
  - **downloadSubtitles** - Scrape both user-generated and auto-generated captions and convert them to SRT format. Boolean value, defaults to false.
 	 - **subtitlesLanguage** - Download only subtitles of the selected language (possible values `"en"`, `"de"`, `"es"`...)
@@ -204,3 +203,4 @@ We have other video-related scrapers in stock for you; to see more of those, che
 ## Your feedback
 
 We’re always working on improving the performance of our actors. So if you’ve got any technical feedback about the work of our YouTube API, or simply **found a bug,** please create an issue on the [Github page](https://github.com/bernardro/actor-youtube-scraper) and we’ll get to it.
+
