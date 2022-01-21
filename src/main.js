@@ -17,7 +17,7 @@ Apify.main(async () => {
         proxyConfiguration,
         searchKeywords,
         maxResults,
-        // postsFromDate,
+        postsFromDate,
         handlePageTimeoutSecs = 3600,
         downloadSubtitles = false,
         saveSubsToKVS: saveSubtitlesToKVS = false,
@@ -191,7 +191,7 @@ Apify.main(async () => {
                 case 'CHANNEL':
                 case 'SEARCH':
                 case 'MASTER': {
-                    await crawler.handleMaster({ page, requestQueue, searchKeywords, maxResults, request });
+                    await crawler.handleMaster({ page, requestQueue, searchKeywords, maxResults, postsFromDate, request });
                     break;
                 }
                 case 'DETAIL': {

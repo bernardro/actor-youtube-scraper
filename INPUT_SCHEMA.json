@@ -31,6 +31,18 @@
             "editor": "requestListSources",
             "sectionCaption": "Direct URLs"
         },
+        "postsFromDate": {
+            "title": "Videos till",
+            "type": "string",
+            "editor": "textfield",
+            "description": "How far back in history to go e.g <br />30 minutes <br />1 week <br />5 months <br />4 years, etc.<br />for 'No limits' empty the field",
+            "pattern": "(^(1|([^0a-zA-Z ][0-9]{0,3})) (minute|hour|day|week|month|year))s?",
+            "minLength": 0,
+            "maxLength": 16,
+            "prefill": "5 years",
+            "nullable": true,
+            "sectionCaption": "Time frame"
+        },
         "downloadSubtitles": {
             "title" : "Download subtitles",
             "type": "boolean",

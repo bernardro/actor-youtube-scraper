@@ -16,10 +16,11 @@ const { fetchSubtitles, processFetchedSubtitles } = require('./subtitles');
  *  requestQueue: Apify.RequestQueue,
  *  searchKeywords: string[],
  *  maxResults: number,
+ *  postsFromDate: string,
  *  request: Apify.Request,
  * }} config
  */
-exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, request }) => {
+exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, postsFromDate, request }) => {
     const { searchBox, toggleFilterMenu, filterBtnsXp } = CONSTS.SELECTORS.SEARCH;
     const { search, label } = request.userData;
 
@@ -46,40 +47,40 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
         // pause while page reloads
         await sleep(utils.getDelayMs(CONSTS.DELAY.HUMAN_PAUSE));
 
-        // log.debug('waiting for filter menu button...');
-        // const filterMenuElem = await page.waitForSelector(toggleFilterMenu, { visible: true });
-        // if (filterMenuElem) {
-        //     log.debug(`expandFilterMenuBtn found at ${toggleFilterMenu}`);
+        log.debug('waiting for filter menu button...');
+        const filterMenuElem = await page.waitForSelector(toggleFilterMenu, { visible: true });
+        if (filterMenuElem) {
+            log.debug(`expandFilterMenuBtn found at ${toggleFilterMenu}`);
 
-        //     // for every filter:
-        //     // - click on filter menu to expand it
-        //     // - click on specific filter button to add the filter
-        //     log.info(`[${search}]: Setting filters...`);
-        //     const filtersToAdd = utils.getYoutubeDateFilters(postsFromDate);
+            // for every filter:
+            // - click on filter menu to expand it
+            // - click on specific filter button to add the filter
+            log.info(`[${search}]: Setting filters...`);
+            const filtersToAdd = utils.getYoutubeDateFilters(postsFromDate);
 
-        //     for (const filterLabel of filtersToAdd) {
-        //         log.debug('Opening filter menu', { filterLabel });
-        //         await page.tap(toggleFilterMenu);
+            for (const filterLabel of filtersToAdd) {
+                log.debug('Opening filter menu', { filterLabel });
+                await page.tap(toggleFilterMenu);
 
-        //         // wait for filter panel to show
-        //         await page.waitForXPath(filterBtnsXp, { visible: true });
+                // wait for filter panel to show
+                await page.waitForXPath(filterBtnsXp, { visible: true });
 
-        //         const targetFilterXp = `${filterBtnsXp}[text()='${filterLabel}']`;
-        //         const filterBtn = await page.$x(targetFilterXp);
+                const targetFilterXp = `${filterBtnsXp}[text()='${filterLabel}']`;
+                const filterBtn = await page.$x(targetFilterXp);
 
-        //         log.debug('Setting filter', { filterLabel });
+                log.debug('Setting filter', { filterLabel });
 
-        //         await Promise.all([
-        //             filterBtn[0].click(),
-        //             Promise.race([
-        //                 // this is for actual navigation, usually sp= is added to the url
-        //                 page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 15000 }).catch(() => null),
-        //                 // this is for the sorting and/or some combinations
-        //                 page.waitForResponse((response) => response.url().includes('/search'), { timeout: 15000 }).catch(() => null),
-        //             ]),
-        //         ]);
-        //     }
-        // }
+                await Promise.all([
+                    filterBtn[0].click(),
+                    Promise.race([
+                        // this is for actual navigation, usually sp= is added to the url
+                        page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 15000 }).catch(() => null),
+                        // this is for the sorting and/or some combinations
+                        page.waitForResponse((response) => response.url().includes('/search'), { timeout: 15000 }).catch(() => null),
+                    ]),
+                ]);
+            }
+        }
     }
 
     const searchOrUrl = search || request.url;
