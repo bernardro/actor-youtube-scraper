@@ -35,8 +35,6 @@ If this actor is run on our [Platform](https://console.apify.com/), a user-frien
 	 -  **startUrls** - A more accurate alternative to **searchKeywords**. By inserting specific URLs from YouTube you can provide search, channel or videos URLs.
  - **maxResults** - sets how many videos should be scraped from each search or channel. Defaults to 50, but you can leave it empty for unlimited search.
  - **maxComments** - Limits the number of comments that you want to scrape.  0 or empty means no comments will be scraped.
- - Using both **postsFromDate** and **postsToDate** can help you set up a *timeframe of videos* you want to scrape, e.g. *from 5 years ago till 1 minute ago*.
-	 - **postsFromDate** -  Indicates the range of how far back in YouTube history the actor should go; defaults to videos from *5 years ago*.
 
  - **downloadSubtitles** - Scrape both user-generated and auto-generated captions and convert them to SRT format. Boolean value, defaults to false.
 	 - **subtitlesLanguage** - Download only subtitles of the selected language (possible values `"en"`, `"de"`, `"es"`...)
@@ -53,8 +51,6 @@ If this actor is run on our [Platform](https://console.apify.com/), a user-frien
 {
     "searchKeywords": "Terminator dark fate",
     "maxResults": 30,
-    "postsToDate": "2 days",
-    "postsFromDate": "2 weeks",
     "startUrls": [{
         "url": "https://www.youtube.com/channel/UC8w/videos" // channel videos
     }, {
@@ -116,12 +112,7 @@ Here are the calculations for a typical resource usage of YouTube Scraper on Api
 |  Memory| 480.3 MB | 1.1 GB |
 | CPU | 53% | 140% |
 
-This actor uses xPaths to find DOM elements; they are all stored in one file for easy update. All xPath variables and functions end in 'Xp'. The logic of the actor makes use of YouTube's own date filters because:
-
--   YouTube does not by default show videos in chronological order. The order of videos is usually related to the number of likes, subscribers, etc.
--   There is no way to give YouTube an exact cutoff date (unless you use YouTube's developer [official API](https://developers.google.com/youtube/v3).
--   YouTube has a separate filter that toggles sorting by date. 
-So when a user requests videos *from 5 days ago*, we apply YouTube's *This week* filter as well as the *Sort by Upload date* filter. 
+This actor uses xPaths to find DOM elements; they are all stored in one file for easy update. All xPath variables and functions end in 'Xp'.
 
 ### Extend output function
 
