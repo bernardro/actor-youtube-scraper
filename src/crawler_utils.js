@@ -16,7 +16,6 @@ const { fetchSubtitles, processFetchedSubtitles } = require('./subtitles');
  *  requestQueue: Apify.RequestQueue,
  *  searchKeywords: string[],
  *  maxResults: number,
- *  postsFromDate: string,
  *  request: Apify.Request,
  * }} config
  */
@@ -80,7 +79,7 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
         //             ]),
         //         ]);
         //     }
-        }
+        // }
     }
 
     const searchOrUrl = search || request.url;
