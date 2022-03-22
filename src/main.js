@@ -17,6 +17,7 @@ Apify.main(async () => {
         proxyConfiguration,
         searchKeywords,
         maxResults,
+        simplifiedInformation = false,
         // postsFromDate,
         handlePageTimeoutSecs = 3600,
         downloadSubtitles = false,
@@ -38,6 +39,10 @@ Apify.main(async () => {
         throw new Error('You need to provide either searchKeywords or startUrls as input');
     }
 
+    if (simplifiedInformation && (!startUrls || !startUrls.length || searchKeywords)) {
+        throw new Error('You need to provide only startUrls (no Search Keywords) as input to scrape simplified information from a channel');
+    }
+
     if (startUrls && startUrls.length) {
         log.info('Starting scraper with startUrls, ignoring searchKeywords');
 
@@ -53,7 +58,6 @@ Apify.main(async () => {
                 pUrl.pathname = `${pUrl.pathname.split('/').filter((s) => s).join('/')}/videos`;
                 req.url = pUrl.toString();
             }
-
             await requestQueue.addRequest({
                 url: req.url,
                 userData: {
@@ -191,7 +195,7 @@ Apify.main(async () => {
                 case 'CHANNEL':
                 case 'SEARCH':
                 case 'MASTER': {
-                    await crawler.handleMaster({ page, requestQueue, searchKeywords, maxResults, request });
+                    await crawler.handleMaster({ page, requestQueue, searchKeywords, maxResults, request, simplifiedInformation, input });
                     break;
                 }
                 case 'DETAIL': {
