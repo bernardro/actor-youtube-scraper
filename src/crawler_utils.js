@@ -233,6 +233,11 @@ const getBasicInformation = async (page, maxRequested, isSearchResultPage, input
     const numberOfSubscribers = unformatNumbers(subscribersStr);
     const channelName = await page.$eval(channelNameText, (el) => el.innerText);
 
+    const logInterval = setInterval(
+        () => log.info(`Scrolling state - Pushed ${videoAmount} unique videos total`),
+        60000,
+    );
+
     try {
         while (shouldContinue) { // eslint-disable-line no-constant-condition
             // youtube keep adding video sections to the page on scroll
