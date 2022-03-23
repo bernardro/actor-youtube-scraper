@@ -26,6 +26,10 @@ exports.SELECTORS = {
         youtubeVideosSection: 'ytd-item-section-renderer',
         youtubeVideosRenderer: 'ytd-video-renderer,ytd-grid-video-renderer', // grid is for channels
         url: 'a[href^="/watch"]',
+        videoTitle: '#video-title',
+        channelNameText: '#channel-name #text-container', // multiple, get first
+        subscriberCount: '#subscriber-count',
+        canonicalUrl: 'link[rel="canonical"]',
     },
     VIDEO: {
         titleXp: '//ytd-video-primary-info-renderer/div/h1/yt-formatted-string',
