@@ -23,6 +23,12 @@
             "unit": "Videos",
             "nullable": true
         },
+        "simplifiedInformation": {
+            "title" : "Get simplified information from a channel",
+            "type": "boolean",
+            "default": false,
+            "description" : "If set to true, we will only get basic video information from the channel. You have to provide a channel Url as StartUrl"
+        },
         "startUrls": {
             "title": "Direct URLs",
             "type": "array",
@@ -51,12 +57,6 @@
             "default" : "en",
             "enum" : ["en", "de", "es", "fr", "it", "ja", "ko", "nl", "pt", "ru"],
             "enumTitles" : ["English", "German", "Spanish", "French", "Italian", "Japanese", "Korean", "Holland", "Portuguese", "Russian"]
-        },
-        "simplifiedInformation": {
-            "title" : "Get simplified information from a channel",
-            "type": "boolean",
-            "default": false,
-            "description" : "If set to true, we will only get basic video information from the channel. You have to provide a channel Url as StartUrl"
         },
         "extendOutputFunction": {
             "title": "Extend Output Function",
