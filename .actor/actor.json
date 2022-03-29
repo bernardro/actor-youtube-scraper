@@ -21,7 +21,6 @@
                             "viewCount",
                             "date",
                             "likes",
-                            "dislikes",
                             "channelName",
                             "channelUrl",
                             "numberOfSubscribers",
@@ -47,32 +46,27 @@
                                 "field": "viewCount"
                             },
                             {
-                                "label": "date",
+                                "label": "Date",
                                 "format": "text",
                                 "field": "date"
                             },
                             {
-                                "label": "likes",
+                                "label": "Number of likes",
                                 "format": "text",
                                 "field": "likes"
                             },
                             {
-                                "label": "dislikes",
-                                "format": "text",
-                                "field": "dislikes"
-                            },
-                            {
-                                "label": "channelName",
+                                "label": "Channel name",
                                 "format": "text",
                                 "field": "channelName"
                             },
                             {
-                                "label": "channelUrl",
+                                "label": "Channel URL",
                                 "format": "text",
                                 "field": "channelUrl"
                             },
                             {
-                                "label": "numberOfSubscribers",
+                                "label": "Number of subscribers",
                                 "format": "text",
                                 "field": "numberOfSubscribers"
                             },
