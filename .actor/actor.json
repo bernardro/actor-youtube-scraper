@@ -1,0 +1,90 @@
+{
+    "actorSpecification": 1,
+    "name": "youtube-scraper",
+    "title": "Youtube Scraper",
+    "description": "Scrapes Youtube",
+    "version": "0.0.1",
+    "storages": {
+        "dataset": {
+            "actorSpecification": 1,
+            "title": "Youtube Scraper",
+            "description": "Too see all scraped properties, export the whole dataset or select All fields instead of Overview",
+            "views": {
+                "overview": {
+                    "title": "Overview",
+                    "description": "",
+                    "transformation": {
+                        "fields": [
+                            "title",
+                            "id",
+                            "url",
+                            "viewCount",
+                            "date",
+                            "likes",
+                            "dislikes",
+                            "channelName",
+                            "channelUrl",
+                            "numberOfSubscribers",
+                            "duration"
+                        ]
+                    },
+                    "display": {
+                        "component": "table",
+                        "columns": [
+                            {
+                                "label": "Title",
+                                "format": "text",
+                                "field": "title"
+                            },
+                            {
+                                "label": "URL",
+                                "format": "text",
+                                "field": "url"
+                            },
+                            {
+                                "label": "Number of views",
+                                "format": "text",
+                                "field": "viewCount"
+                            },
+                            {
+                                "label": "date",
+                                "format": "text",
+                                "field": "date"
+                            },
+                            {
+                                "label": "likes",
+                                "format": "text",
+                                "field": "likes"
+                            },
+                            {
+                                "label": "dislikes",
+                                "format": "text",
+                                "field": "dislikes"
+                            },
+                            {
+                                "label": "channelName",
+                                "format": "text",
+                                "field": "channelName"
+                            },
+                            {
+                                "label": "channelUrl",
+                                "format": "text",
+                                "field": "channelUrl"
+                            },
+                            {
+                                "label": "numberOfSubscribers",
+                                "format": "text",
+                                "field": "numberOfSubscribers"
+                            },
+                            {
+                                "label": "duration",
+                                "format": "text",
+                                "field": "duration"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
