@@ -23,12 +23,6 @@
             "unit": "Videos",
             "nullable": true
         },
-        "simplifiedInformation": {
-            "title" : "Get simplified information from a channel",
-            "type": "boolean",
-            "default": false,
-            "description" : "If set to true, we will only get basic video information from the channel. You have to provide a channel Url as StartUrl"
-        },
         "startUrls": {
             "title": "Direct URLs",
             "type": "array",
@@ -36,6 +30,12 @@
             "default": [],
             "editor": "requestListSources",
             "sectionCaption": "Direct URLs"
+        },
+        "simplifiedInformation": {
+            "title" : "Get simplified information from a channel",
+            "type": "boolean",
+            "default": false,
+            "description" : "If set to true, we will only get basic video information from the channel. You have to provide a channel Url as StartUrl"
         },
         "downloadSubtitles": {
             "title" : "Download subtitles",
