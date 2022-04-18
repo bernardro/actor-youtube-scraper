@@ -39,10 +39,6 @@ Apify.main(async () => {
         throw new Error('You need to provide either searchKeywords or startUrls as input');
     }
 
-    if (simplifiedInformation && (!startUrls || !startUrls.length || searchKeywords)) {
-        throw new Error('You need to provide only startUrls (no Search Keywords) as input to scrape simplified information from a channel');
-    }
-
     if (startUrls && startUrls.length) {
         log.info('Starting scraper with startUrls, ignoring searchKeywords');
 
