@@ -30,6 +30,12 @@ exports.SELECTORS = {
         channelNameText: '#channel-name #text-container', // multiple, get first
         subscriberCount: '#subscriber-count',
         canonicalUrl: 'link[rel="canonical"]',
+        simplifiedResultVideoTitle: '#video-title',
+        simplifiedResultDurationText: '#text',
+        simplifiedResultChannelName: '#channel-info > #channel-name',
+        simlifiedResultChannelUrl: '#channel-info > a',
+        simplifiedResultViewCount: '#metadata-line > span:nth-child(1)',
+        simplifiedResultDate: '#metadata-line > span:nth-child(2)',
     },
     VIDEO: {
         titleXp: '//ytd-video-primary-info-renderer/div/h1/yt-formatted-string',
