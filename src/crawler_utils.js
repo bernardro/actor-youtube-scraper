@@ -266,7 +266,14 @@ const getBasicInformation = async (basicInfoParams) => {
                         const viewCount = +videoDetailsArray[videoDetailsArray.length - 2].replace(/\D/g, '');
                         const durationRaw = videoDetailsArray.slice(3, videoDetailsArray.length - 2).join(' ');
 
-                        const duration = await video.$eval(`span[aria-label="${durationRaw}"]`, (el) => el.innerText);
+                        let duration;
+
+                        try {
+                            duration = await video.$eval(`span[aria-label="${durationRaw}"]`, (el) => el.innerText);
+                        } catch (e) {
+                            console.log(`Couldn't parse duration, sending the raw duration`);
+                            duration = durationRaw;
+                        }
 
                         videoAmount++;
 
