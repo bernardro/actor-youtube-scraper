@@ -73,26 +73,10 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
 
     const maxRequested = (maxResults && maxResults > 0) ? +maxResults : 99999;
 
-    const basicInfoParams = {
-        page,
-        maxRequested,
-        isSearchResultPage: ['SEARCH'].includes(label),
-        input,
-        requestUrl: request.url,
-    };
-
-    const loadVideosUrlsParams = {
-        requestQueue,
-        page,
-        maxRequested,
-        isSearchResultPage: ['MASTER', 'SEARCH'].includes(label),
-        searchOrUrl,
-    };
-
     if (!simplifiedInformation) {
-        await utils.loadVideosUrls(loadVideosUrlsParams);
+        await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
     } else {
-        await getBasicInformation(basicInfoParams);
+        await getBasicInformation(page, maxRequested, ['SEARCH'].includes(label), input, request.url);
     }
 };
 
@@ -188,17 +172,14 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
 };
 
 /**
- * @param {{
- * page: Puppeteer.Page
- * maxRequested: number
- * isSearchResultPage: boolean
- * input: object
- * requestUrl: string
- * }} basicInfoParams
+ * @param {Puppeteer.Page} page
+ * @param {number} maxRequested
+ * @param {boolean} isSearchResultPage
+ * @param {object} input
+ * @param {string} requestUrl
  */
 
-const getBasicInformation = async (basicInfoParams) => {
-    const { page, maxRequested, isSearchResultPage, input, requestUrl } = basicInfoParams;
+const getBasicInformation = async (page, maxRequested, isSearchResultPage, input, requestUrl) => {
     const { youtubeVideosSection, youtubeVideosRenderer, url, videoTitle, channelNameText, subscriberCount, canonicalUrl,
         simlifiedResultChannelUrl, simplifiedResultChannelName, simplifiedResultDate, simplifiedResultDurationText, simplifiedResultVideoTitle, simplifiedResultViewCount,
     } = CONSTS.SELECTORS.SEARCH;
@@ -257,14 +238,8 @@ const getBasicInformation = async (basicInfoParams) => {
                         const simplifiedDate = videoDetailsArray.slice(0, 3).join(' ');
                         const viewCount = +videoDetailsArray[videoDetailsArray.length - 2].replace(/\D/g, '');
                         const durationRaw = videoDetailsArray.slice(3, videoDetailsArray.length - 2).join(' ');
-                        let duration;
 
-                        try {
-                            duration = await video.$eval(`span[aria-label="${durationRaw}"]`, (el) => el.innerText);
-                        } catch {
-                            console.log(`Duration info not found`);
-                            duration = durationRaw;
-                        }
+                        const duration = await video.$eval(`span[aria-label="${durationRaw}"]`, (el) => el.innerText);
 
                         videoAmount++;
 
@@ -285,7 +260,7 @@ const getBasicInformation = async (basicInfoParams) => {
                             break;
                         }
 
-                        await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
+                        await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
 
                         if (!isSearchResultPage) {
                             // remove the link on channels, so the scroll happens
@@ -377,7 +352,7 @@ const getBasicInformation = async (basicInfoParams) => {
                                 break;
                             }
 
-                            await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
+                            await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
 
                             if (!isSearchResultPage) {
                             // remove the link on channels, so the scroll happens
