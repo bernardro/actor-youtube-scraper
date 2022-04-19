@@ -13,13 +13,17 @@ exports.handleErrorAndScreenshot = async (page, e, errorName) => {
 };
 
 /**
- * @param {Apify.RequestQueue} requestQueue
- * @param {Puppeteer.Page} page
- * @param {number} maxRequested
- * @param {boolean} isSearchResultPage
- * @param {string} searchOrUrl
+ * @param {{
+ *  requestQueue: Apify.RequestQueue,
+ *  page: Puppeteer.Page,
+ *  maxRequested: number,
+ *  isSearchResultPage: boolean,
+ *  searchOrUrl: string,
+ * }} loadVideosUrlsParams
  */
-exports.loadVideosUrls = async (requestQueue, page, maxRequested, isSearchResultPage, searchOrUrl) => {
+
+exports.loadVideosUrls = async (loadVideosUrlsParams) => {
+    const { requestQueue, page, maxRequested, isSearchResultPage, searchOrUrl } = loadVideosUrlsParams;
     const { youtubeVideosSection, youtubeVideosRenderer, url } = CONSTS.SELECTORS.SEARCH;
 
     log.debug('loadVideosUrls', { maxRequested });
@@ -348,7 +352,7 @@ exports.getRandBetween = (min, max) => {
 };
 
 exports.getDelayMs = (minMax) => {
-    return exports.getRandBetween(minMax.min, minMax.max);
+    return exports.getRandBetween(minMax.MIN, minMax.MAX);
 };
 
 /**
