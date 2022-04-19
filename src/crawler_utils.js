@@ -73,10 +73,26 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
 
     const maxRequested = (maxResults && maxResults > 0) ? +maxResults : 99999;
 
+    const basicInfoParams = {
+        page,
+        maxRequested,
+        isSearchResultPage: ['SEARCH'].includes(label),
+        input,
+        requestUrl: request.url,
+    };
+
+    const loadVideosUrlsParams = {
+        requestQueue,
+        page,
+        maxRequested,
+        isSearchResultPage: ['MASTER', 'SEARCH'].includes(label),
+        searchOrUrl,
+    };
+
     if (!simplifiedInformation) {
-        await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
+        await utils.loadVideosUrls(loadVideosUrlsParams);
     } else {
-        await getBasicInformation(page, maxRequested, ['SEARCH'].includes(label), input, request.url);
+        await getBasicInformation(basicInfoParams);
     }
 };
 
@@ -179,7 +195,18 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
  * @param {string} requestUrl
  */
 
-const getBasicInformation = async (page, maxRequested, isSearchResultPage, input, requestUrl) => {
+/**
+ * @param {{
+ * page: Puppeteer.Page
+ * maxRequested: number
+ * isSearchResultPage: boolean
+ * input: object
+ * requestUrl: string
+ * }} basicInfoParams
+ */
+
+const getBasicInformation = async (basicInfoParams) => {
+    const { page, maxRequested, isSearchResultPage, input, requestUrl } = basicInfoParams;
     const { youtubeVideosSection, youtubeVideosRenderer, url, videoTitle, channelNameText, subscriberCount, canonicalUrl,
         simlifiedResultChannelUrl, simplifiedResultChannelName, simplifiedResultDate, simplifiedResultDurationText, simplifiedResultVideoTitle, simplifiedResultViewCount,
     } = CONSTS.SELECTORS.SEARCH;
@@ -260,7 +287,7 @@ const getBasicInformation = async (page, maxRequested, isSearchResultPage, input
                             break;
                         }
 
-                        await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
+                        await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
 
                         if (!isSearchResultPage) {
                             // remove the link on channels, so the scroll happens
@@ -352,7 +379,7 @@ const getBasicInformation = async (page, maxRequested, isSearchResultPage, input
                                 break;
                             }
 
-                            await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
+                            await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
 
                             if (!isSearchResultPage) {
                             // remove the link on channels, so the scroll happens
