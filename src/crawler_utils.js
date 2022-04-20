@@ -212,45 +212,50 @@ const getBasicInformation = async (basicInfoParams) => {
         helpers: {},
     });
 
-    if (requestUrl.includes('/channel/')) {
-        log.debug('loadVideosUrls', { maxRequested });
-        let shouldContinue = true;
-        let videoAmount = 0;
+    log.debug('loadVideosUrls', { maxRequested });
+    let shouldContinue = true;
+    let videoAmount = 0;
 
-        const channelUrl = await page.$eval(canonicalUrl, (el) => el.href);
+    const logInterval = setInterval(
+        () => log.info(`Scrolling state - Pushed ${videoAmount} unique videos total`),
+        60000,
+    );
+
+    let channelUrl, numberOfSubscribers, channelName;
+
+    if (requestUrl.includes('/channel/') || (requestUrl.includes('/user/') && requestUrl.includes('videos')) ) {
+        channelUrl = await page.$eval(canonicalUrl, (el) => el.href);
         const subscribersStr = await page.$eval(subscriberCount, (el) => el.innerText.replace(/subscribers/ig, '').trim());
-        const numberOfSubscribers = unformatNumbers(subscribersStr);
-        const channelName = await page.$eval(channelNameText, (el) => el.innerText);
+        numberOfSubscribers = unformatNumbers(subscribersStr);
+        channelName = await page.$eval(channelNameText, (el) => el.innerText);
+    }
 
-        const logInterval = setInterval(
-            () => log.info(`Scrolling state - Pushed ${videoAmount} unique videos total`),
-            60000,
-        );
+    try {
+        while (shouldContinue) { // eslint-disable-line no-constant-condition
+            // youtube keep adding video sections to the page on scroll
+            await page.waitForSelector(youtubeVideosSection);
+            const videoSections = await page.$$(youtubeVideosSection);
 
-        try {
-            while (shouldContinue) { // eslint-disable-line no-constant-condition
-                // youtube keep adding video sections to the page on scroll
-                await page.waitForSelector(youtubeVideosSection);
-                const videoSections = await page.$$(youtubeVideosSection);
+            log.debug('Video sections', { shouldContinue, videoSections: videoSections.length });
+            let videoCount = 0;
 
-                log.debug('Video sections', { shouldContinue, videoSections: videoSections.length });
-                let videoCount = 0;
+            for (const videoSection of videoSections) {
+                // each section have around 20 videos
+                await page.waitForSelector(youtubeVideosRenderer);
+                const videos = await videoSection.$$(youtubeVideosRenderer);
 
-                for (const videoSection of videoSections) {
-                    // each section have around 20 videos
-                    await page.waitForSelector(youtubeVideosRenderer);
-                    const videos = await videoSection.$$(youtubeVideosRenderer);
+                log.debug('Videos count', { shouldContinue, videos: videos.length });
 
-                    log.debug('Videos count', { shouldContinue, videos: videos.length });
+                for (const video of videos) {
+                    let title;
+                    try {
+                        await video.hover();
+                    } catch (e) {}
 
-                    for (const video of videos) {
-                        try {
-                            await video.hover();
-                        } catch (e) {}
-
+                    if (channelUrl) {
                         const videoUrl = await video.$eval(url, (el) => el.href);
                         const videoId = utils.getVideoId(videoUrl);
-                        const title = await video.$eval(videoTitle, (el) => el.title);
+                        title = await video.$eval(videoTitle, (el) => el.title);
                         const videoDetails = await video.$eval(videoTitle, (el) => el.ariaLabel) || '';
 
                         const videoDetailsArray = videoDetails.replace(title, ``).replace(`by ${channelName}`, ``).split(' ').filter((item) => item);
@@ -280,139 +285,66 @@ const getBasicInformation = async (basicInfoParams) => {
                             numberOfSubscribers,
                             duration,
                         });
+                    } else {
+                        title = await video.$eval(simplifiedResultVideoTitle, (el) => el.innerText);
+                        const videoUrl = await video.$eval(simplifiedResultVideoTitle, (el) => el.href);
+                        const duration = await video.$eval(simplifiedResultDurationText, (el) => el.innerText);
+                        const channelName = await video.$eval(simplifiedResultChannelName, (el) => el.innerText);
+                        const channelUrl = await video.$eval(simlifiedResultChannelUrl, (el) => el.href);
+                        const viewCountRaw = await video.$eval(simplifiedResultViewCount, (el) => el.innerText);
+                        const viewCount = unformatNumbers(viewCountRaw);
+                        const date = await video.$eval(simplifiedResultDate, (el) => el.innerText);
 
-                        if (videoAmount >= maxRequested) {
-                            shouldContinue = false;
-                            break;
-                        }
+                        videoAmount++;
 
-                        await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
-
-                        if (!isSearchResultPage) {
-                            // remove the link on channels, so the scroll happens
-                            await video.evaluate((el) => el.remove());
-                        }
-
-                        videoCount++;
-
-                        log.info(`Adding simplified video data: ${title}`);
-
-                        await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
-
-                        if (isSearchResultPage) {
-                            await videoSection.evaluate((el) => el.remove());
-                        }
+                        await extendOutputFunction({
+                            title,
+                            id: videoUrl.split('v=')[1],
+                            url: videoUrl,
+                            viewCount,
+                            date,
+                            channelName,
+                            channelUrl,
+                            duration,
+                        });
                     }
 
-                    if (!shouldContinue) {
-                        break;
-                    }
-                }
-
-                if (!videoCount) {
-                    shouldContinue = false;
-                    break;
-                }
-            }
-        } catch (e) {
-            clearInterval(logInterval);
-            throw e;
-        }
-        clearInterval(logInterval);
-    } else {
-        log.debug('loadVideosUrls', { maxRequested });
-        let shouldContinue = true;
-        let videoAmount = 0;
-
-        const logInterval = setInterval(
-            () => log.info(`Scrolling state - Pushed ${videoAmount} unique videos total`),
-            60000,
-        );
-
-        try {
-            while (shouldContinue) { // eslint-disable-line no-constant-condition
-                // youtube keep adding video sections to the page on scroll
-                await page.waitForSelector(youtubeVideosSection);
-                const videoSections = await page.$$(youtubeVideosSection);
-
-                // const videoSections = await page.$$('#dismissible');
-
-                log.debug('Video search sections', { shouldContinue, videoSections: videoSections.length });
-                let videoCount = 0;
-
-                for (const videoSection of videoSections) {
-                    await page.waitForSelector(youtubeVideosRenderer);
-                    const videos = await videoSection.$$(youtubeVideosRenderer);
-
-                    log.debug('Videos count', { shouldContinue, videos: videos.length });
-
-                    for (const video of videos) {
-                        try {
-                            await video.hover();
-                        } catch (e) {}
-                        try {
-                            const title = await video.$eval(simplifiedResultVideoTitle, (el) => el.innerText);
-                            const videoUrl = await video.$eval(simplifiedResultVideoTitle, (el) => el.href);
-                            const duration = await video.$eval(simplifiedResultDurationText, (el) => el.innerText);
-                            const channelName = await video.$eval(simplifiedResultChannelName, (el) => el.innerText);
-                            const channelUrl = await video.$eval(simlifiedResultChannelUrl, (el) => el.href);
-                            const viewCountRaw = await video.$eval(simplifiedResultViewCount, (el) => el.innerText);
-                            const viewCount = unformatNumbers(viewCountRaw);
-                            const date = await video.$eval(simplifiedResultDate, (el) => el.innerText);
-
-                            videoAmount++;
-
-                            await extendOutputFunction({
-                                title,
-                                id: videoUrl.split('v=')[1],
-                                url: videoUrl,
-                                viewCount,
-                                date,
-                                channelName,
-                                channelUrl,
-                                duration,
-                            });
-
-                            if (videoAmount >= maxRequested) {
-                                shouldContinue = false;
-                                break;
-                            }
-
-                            await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
-
-                            if (!isSearchResultPage) {
-                            // remove the link on channels, so the scroll happens
-                                await video.evaluate((el) => el.remove());
-                            }
-
-                            videoCount++;
-
-                            log.info(`Adding simplified video data: ${title}`);
-
-                            await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
-
-                            if (isSearchResultPage) {
-                                await videoSection.evaluate((el) => el.remove());
-                            }
-                        } catch (e) {
-                            console.log(`Date doesn't exist, source is probably a playlist or another type of source, skipping...`);
-                        }
-
-                        if (!shouldContinue) {
-                            break;
-                        }
-                    }
-
-                    if (!videoCount) {
+                    if (videoAmount >= maxRequested) {
                         shouldContinue = false;
                         break;
                     }
+
+                    await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
+
+                    if (!isSearchResultPage) {
+                        // remove the link on channels, so the scroll happens
+                        await video.evaluate((el) => el.remove());
+                    }
+
+                    videoCount++;
+
+                    log.info(`Adding simplified video data: ${title}`);
+
+                    await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
+
+                    if (isSearchResultPage) {
+                        await videoSection.evaluate((el) => el.remove());
+                    }
+                }
+
+                if (!shouldContinue) {
+                    break;
                 }
             }
-        } catch (e) {
-            clearInterval(logInterval);
-            throw e;
+
+            if (!videoCount) {
+                shouldContinue = false;
+                break;
+            }
         }
+    } catch (e) {
         clearInterval(logInterval);
+        throw e;
     }
+    clearInterval(logInterval);
 };
