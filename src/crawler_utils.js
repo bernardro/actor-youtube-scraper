@@ -188,14 +188,6 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
 };
 
 /**
- * @param {Puppeteer.Page} page
- * @param {number} maxRequested
- * @param {boolean} isSearchResultPage
- * @param {object} input
- * @param {string} requestUrl
- */
-
-/**
  * @param {{
  * page: Puppeteer.Page
  * maxRequested: number
