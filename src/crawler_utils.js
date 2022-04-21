@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const moment = require('moment');
 const Apify = require('apify');
 // eslint-disable-next-line no-unused-vars
@@ -47,41 +48,6 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
 
         // pause while page reloads
         await sleep(utils.getDelayMs(CONSTS.DELAY.HUMAN_PAUSE));
-
-        // log.debug('waiting for filter menu button...');
-        // const filterMenuElem = await page.waitForSelector(toggleFilterMenu, { visible: true });
-        // if (filterMenuElem) {
-        //     log.debug(`expandFilterMenuBtn found at ${toggleFilterMenu}`);
-
-        //     // for every filter:
-        //     // - click on filter menu to expand it
-        //     // - click on specific filter button to add the filter
-        //     log.info(`[${search}]: Setting filters...`);
-        //     const filtersToAdd = utils.getYoutubeDateFilters(postsFromDate);
-
-        //     for (const filterLabel of filtersToAdd) {
-        //         log.debug('Opening filter menu', { filterLabel });
-        //         await page.tap(toggleFilterMenu);
-
-        //         // wait for filter panel to show
-        //         await page.waitForXPath(filterBtnsXp, { visible: true });
-
-        //         const targetFilterXp = `${filterBtnsXp}[text()='${filterLabel}']`;
-        //         const filterBtn = await page.$x(targetFilterXp);
-
-        //         log.debug('Setting filter', { filterLabel });
-
-        //         await Promise.all([
-        //             filterBtn[0].click(),
-        //             Promise.race([
-        //                 // this is for actual navigation, usually sp= is added to the url
-        //                 page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 15000 }).catch(() => null),
-        //                 // this is for the sorting and/or some combinations
-        //                 page.waitForResponse((response) => response.url().includes('/search'), { timeout: 15000 }).catch(() => null),
-        //             ]),
-        //         ]);
-        //     }
-        // }
     }
 
     const searchOrUrl = search || request.url;
@@ -107,10 +73,26 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
 
     const maxRequested = (maxResults && maxResults > 0) ? +maxResults : 99999;
 
+    const basicInfoParams = {
+        page,
+        maxRequested,
+        isSearchResultPage: ['SEARCH'].includes(label),
+        input,
+        requestUrl: request.url,
+    };
+
+    const loadVideosUrlsParams = {
+        requestQueue,
+        page,
+        maxRequested,
+        isSearchResultPage: ['MASTER', 'SEARCH'].includes(label),
+        searchOrUrl,
+    };
+
     if (!simplifiedInformation) {
-        await utils.loadVideosUrls(requestQueue, page, maxRequested, ['MASTER', 'SEARCH'].includes(label), searchOrUrl);
+        await utils.loadVideosUrls(loadVideosUrlsParams);
     } else {
-        await getBasicInformation(page, maxRequested, ['SEARCH'].includes(label), input);
+        await getBasicInformation(basicInfoParams);
     }
 };
 
@@ -206,14 +188,20 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
 };
 
 /**
- * @param {Puppeteer.Page} page
- * @param {number} maxRequested
- * @param {boolean} isSearchResultPage
- * @param {object} input
+ * @param {{
+ * page: Puppeteer.Page
+ * maxRequested: number
+ * isSearchResultPage: boolean
+ * input: object
+ * requestUrl: string
+ * }} basicInfoParams
  */
 
-const getBasicInformation = async (page, maxRequested, isSearchResultPage, input) => {
-    const { youtubeVideosSection, youtubeVideosRenderer, url, videoTitle, channelNameText, subscriberCount, canonicalUrl } = CONSTS.SELECTORS.SEARCH;
+const getBasicInformation = async (basicInfoParams) => {
+    const { page, maxRequested, isSearchResultPage, input, requestUrl } = basicInfoParams;
+    const { youtubeVideosSection, youtubeVideosRenderer, url, videoTitle, channelNameText, subscriberCount, canonicalUrl,
+        simlifiedResultChannelUrl, simplifiedResultChannelName, simplifiedResultDate, simplifiedResultDurationText, simplifiedResultVideoTitle, simplifiedResultViewCount,
+    } = CONSTS.SELECTORS.SEARCH;
 
     const extendOutputFunction = await utils.extendFunction({
         input,
@@ -228,15 +216,19 @@ const getBasicInformation = async (page, maxRequested, isSearchResultPage, input
     let shouldContinue = true;
     let videoAmount = 0;
 
-    const channelUrl = await page.$eval(canonicalUrl, (el) => el.href);
-    const subscribersStr = await page.$eval(subscriberCount, (el) => el.innerText.replace(/subscribers/ig, '').trim());
-    const numberOfSubscribers = unformatNumbers(subscribersStr);
-    const channelName = await page.$eval(channelNameText, (el) => el.innerText);
-
     const logInterval = setInterval(
         () => log.info(`Scrolling state - Pushed ${videoAmount} unique videos total`),
         60000,
     );
+
+    let channelUrl, numberOfSubscribers, channelName;
+
+    if (requestUrl.includes('/channel/') || (requestUrl.includes('/user/') && requestUrl.includes('videos')) ) {
+        channelUrl = await page.$eval(canonicalUrl, (el) => el.href);
+        const subscribersStr = await page.$eval(subscriberCount, (el) => el.innerText.replace(/subscribers/ig, '').trim());
+        numberOfSubscribers = unformatNumbers(subscribersStr);
+        channelName = await page.$eval(channelNameText, (el) => el.innerText);
+    }
 
     try {
         while (shouldContinue) { // eslint-disable-line no-constant-condition
@@ -255,42 +247,74 @@ const getBasicInformation = async (page, maxRequested, isSearchResultPage, input
                 log.debug('Videos count', { shouldContinue, videos: videos.length });
 
                 for (const video of videos) {
+                    let title;
                     try {
                         await video.hover();
                     } catch (e) {}
 
-                    const videoUrl = await video.$eval(url, (el) => el.href);
-                    const videoId = utils.getVideoId(videoUrl);
-                    const title = await video.$eval(videoTitle, (el) => el.title);
-                    const videoDetails = await video.$eval(videoTitle, (el) => el.ariaLabel) || '';
+                    if (channelUrl) {
+                        const videoUrl = await video.$eval(url, (el) => el.href);
+                        const videoId = utils.getVideoId(videoUrl);
+                        title = await video.$eval(videoTitle, (el) => el.title);
+                        const videoDetails = await video.$eval(videoTitle, (el) => el.ariaLabel) || '';
 
-                    const videoDetailsArray = videoDetails.replace(title, ``).replace(`by ${channelName}`, ``).split(' ').filter((item) => item);
-                    const simplifiedDate = videoDetailsArray.slice(0, 3).join(' ');
-                    const viewCount = +videoDetailsArray[videoDetailsArray.length - 2].replace(/\D/g, '');
-                    const durationRaw = videoDetailsArray.slice(3, videoDetailsArray.length - 2).join(' ');
+                        const videoDetailsArray = videoDetails.replace(title, ``).replace(`by ${channelName}`, ``).split(' ').filter((item) => item);
+                        const simplifiedDate = videoDetailsArray.slice(0, 3).join(' ');
+                        const viewCount = +videoDetailsArray[videoDetailsArray.length - 2].replace(/\D/g, '');
+                        const durationRaw = videoDetailsArray.slice(3, videoDetailsArray.length - 2).join(' ');
 
-                    const duration = await video.$eval(`span[aria-label="${durationRaw}"]`, (el) => el.innerText);
+                        let duration;
 
-                    videoAmount++;
+                        try {
+                            duration = await video.$eval(`span[aria-label="${durationRaw}"]`, (el) => el.innerText);
+                        } catch (e) {
+                            console.log(`Couldn't parse duration, sending the raw duration`);
+                            duration = durationRaw;
+                        }
 
-                    await extendOutputFunction({
-                        title,
-                        id: videoId,
-                        url: videoUrl,
-                        viewCount,
-                        date: simplifiedDate,
-                        channelName,
-                        channelUrl,
-                        numberOfSubscribers,
-                        duration,
-                    });
+                        videoAmount++;
+
+                        await extendOutputFunction({
+                            title,
+                            id: videoId,
+                            url: videoUrl,
+                            viewCount,
+                            date: simplifiedDate,
+                            channelName,
+                            channelUrl,
+                            numberOfSubscribers,
+                            duration,
+                        });
+                    } else {
+                        title = await video.$eval(simplifiedResultVideoTitle, (el) => el.innerText);
+                        const videoUrl = await video.$eval(simplifiedResultVideoTitle, (el) => el.href);
+                        const duration = await video.$eval(simplifiedResultDurationText, (el) => el.innerText);
+                        const channelName = await video.$eval(simplifiedResultChannelName, (el) => el.innerText);
+                        const channelUrl = await video.$eval(simlifiedResultChannelUrl, (el) => el.href);
+                        const viewCountRaw = await video.$eval(simplifiedResultViewCount, (el) => el.innerText);
+                        const viewCount = unformatNumbers(viewCountRaw);
+                        const date = await video.$eval(simplifiedResultDate, (el) => el.innerText);
+
+                        videoAmount++;
+
+                        await extendOutputFunction({
+                            title,
+                            id: videoUrl.split('v=')[1],
+                            url: videoUrl,
+                            viewCount,
+                            date,
+                            channelName,
+                            channelUrl,
+                            duration,
+                        });
+                    }
 
                     if (videoAmount >= maxRequested) {
                         shouldContinue = false;
                         break;
                     }
 
-                    await sleep(CONSTS.DELAY.HUMAN_PAUSE.max);
+                    await sleep(CONSTS.DELAY.HUMAN_PAUSE.MAX);
 
                     if (!isSearchResultPage) {
                         // remove the link on channels, so the scroll happens
