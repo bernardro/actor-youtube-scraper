@@ -54,6 +54,8 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
 
     log.debug(`[${searchOrUrl}]: waiting for first video to load...`);
     const { youtubeVideosSection, youtubeVideosRenderer } = CONSTS.SELECTORS.SEARCH;
+    // static wait to ensure the page is loaded, networkidle2 sometimes not working?
+    await page.waitForTimeout(3300);
     const queuedVideos = await page.$$(`${youtubeVideosSection} ${youtubeVideosRenderer}`);
 
     // prepare to infinite scroll manually
@@ -221,9 +223,10 @@ const getBasicInformation = async (basicInfoParams) => {
         60000,
     );
 
-    let channelUrl, numberOfSubscribers, channelName;
+    let channelUrl; let numberOfSubscribers; let
+        channelName;
 
-    if (requestUrl.includes('/channel/') || (requestUrl.includes('/user/') && requestUrl.includes('videos')) ) {
+    if (requestUrl.includes('/channel/') || (requestUrl.includes('/user/') && requestUrl.includes('videos'))) {
         channelUrl = await page.$eval(canonicalUrl, (el) => el.href);
         const subscribersStr = await page.$eval(subscriberCount, (el) => el.innerText.replace(/subscribers/ig, '').trim());
         numberOfSubscribers = unformatNumbers(subscribersStr);
@@ -286,27 +289,31 @@ const getBasicInformation = async (basicInfoParams) => {
                             duration,
                         });
                     } else {
-                        title = await video.$eval(simplifiedResultVideoTitle, (el) => el.innerText);
-                        const videoUrl = await video.$eval(simplifiedResultVideoTitle, (el) => el.href);
-                        const duration = await video.$eval(simplifiedResultDurationText, (el) => el.innerText);
-                        const channelName = await video.$eval(simplifiedResultChannelName, (el) => el.innerText);
-                        const channelUrl = await video.$eval(simlifiedResultChannelUrl, (el) => el.href);
-                        const viewCountRaw = await video.$eval(simplifiedResultViewCount, (el) => el.innerText);
-                        const viewCount = unformatNumbers(viewCountRaw);
-                        const date = await video.$eval(simplifiedResultDate, (el) => el.innerText);
+                        try {
+                            title = await video.$eval(simplifiedResultVideoTitle, (el) => el.innerText);
+                            const videoUrl = await video.$eval(simplifiedResultVideoTitle, (el) => el.href);
+                            const duration = await video.$eval(simplifiedResultDurationText, (el) => el.innerText);
+                            const channelName = await video.$eval(simplifiedResultChannelName, (el) => el.innerText);
+                            const channelUrl = await video.$eval(simlifiedResultChannelUrl, (el) => el.href);
+                            const viewCountRaw = await video.$eval(simplifiedResultViewCount, (el) => el.innerText);
+                            const viewCount = unformatNumbers(viewCountRaw);
+                            const date = await video.$eval(simplifiedResultDate, (el) => el.innerText);
 
-                        videoAmount++;
+                            videoAmount++;
 
-                        await extendOutputFunction({
-                            title,
-                            id: videoUrl.split('v=')[1],
-                            url: videoUrl,
-                            viewCount,
-                            date,
-                            channelName,
-                            channelUrl,
-                            duration,
-                        });
+                            await extendOutputFunction({
+                                title,
+                                id: videoUrl.split('v=')[1],
+                                url: videoUrl,
+                                viewCount,
+                                date,
+                                channelName,
+                                channelUrl,
+                                duration,
+                            });
+                        } catch (e) {
+                            log.warning(e);
+                        }
                     }
 
                     if (videoAmount >= maxRequested) {
@@ -344,7 +351,7 @@ const getBasicInformation = async (basicInfoParams) => {
         }
     } catch (e) {
         clearInterval(logInterval);
-        throw e;
+        log.warning(e);
     }
     clearInterval(logInterval);
 };
