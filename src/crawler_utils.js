@@ -55,7 +55,7 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
     log.debug(`[${searchOrUrl}]: waiting for first video to load...`);
     const { youtubeVideosSection, youtubeVideosRenderer } = CONSTS.SELECTORS.SEARCH;
     // static wait to ensure the page is loaded, networkidle2 sometimes not working?
-    await page.waitForTimeout(3300);
+    await page.waitForTimeout(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
     const queuedVideos = await page.$$(`${youtubeVideosSection} ${youtubeVideosRenderer}`);
 
     // prepare to infinite scroll manually
@@ -100,9 +100,19 @@ exports.handleMaster = async ({ page, requestQueue, searchKeywords, maxResults, 
 
 exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSettings, maxComments) => {
     const { titleXp, viewCountXp, uploadDateXp, likesXp, dislikesXp,
-        channelXp, subscribersXp, descriptionXp, durationSlctr } = CONSTS.SELECTORS.VIDEO;
+        channelXp, subscribersXp, descriptionXp, durationSlctr, commentsSlctr } = CONSTS.SELECTORS.VIDEO;
 
     log.info(`handling detail url ${request.url}`);
+    // Need to scroll twice to get comments. One scroll works locally, but by 17.05.2022 need to scroll twice for platform.
+    await page.evaluate(() => {
+        window.scrollBy(window.innerWidth, window.innerHeight);
+    });
+
+    await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
+
+    await page.evaluate(() => {
+        window.scrollBy(window.innerWidth, window.innerHeight);
+    });
 
     const videoId = utils.getVideoId(request.url);
     log.debug(`got videoId as ${videoId}`);
@@ -154,6 +164,10 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     const durationStr = await utils.getDataFromSelector(page, durationSlctr, 'innerHTML');
     log.debug(`got videoDuration as ${durationStr}`);
 
+    log.debug(`searching for comments Count at ${commentsSlctr}`);
+    const commentsCount = await utils.getDataFromSelector(page, commentsSlctr, 'innerText');
+    log.debug(`got comments Count as ${commentsCount}`);
+
     const description = await utils.getDataFromXpath(page, descriptionXp, 'innerHTML');
     const text = await utils.getDataFromXpath(page, descriptionXp, 'innerText');
 
@@ -182,6 +196,7 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
         channelUrl,
         numberOfSubscribers,
         duration: durationStr,
+        commentsCount: commentsCount ? parseInt(commentsCount.replace(/\D/g, ''), 10) : null,
         details: description,
         text,
         subtitles,

@@ -47,5 +47,6 @@ exports.SELECTORS = {
         subscribersXp: "//*[@id='owner-sub-count']",
         descriptionXp: '//ytd-expander/div/div/yt-formatted-string',
         durationSlctr: '#movie_player span.ytp-time-duration',
+        commentsSlctr: '.count-text',
     },
 };
