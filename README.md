@@ -9,7 +9,7 @@ Our YouTube API is open-source and you can easily run it locally or on your syst
 - Scrape videos by specifying a multiple search keywords or URLs to get [video details](https://apify.com/bernardo/youtube-scraper#scraper-output), including e.g. like/dislike ratio.
 - Scrape channel details (username, description, number of subscribers etc.)
 - **[NEW]** Scrape and download YouTube subtitles and captions (both auto- and user-generated) in any language from any country. 
-- **[NEW]** Scrape YouTube comment section.
+- **[NEW]** Scrape YouTube comment section (no nested comments at the moment though).
 
 ## Tutorial
 
