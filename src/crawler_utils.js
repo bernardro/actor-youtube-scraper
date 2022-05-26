@@ -348,10 +348,6 @@ const getBasicInformation = async (basicInfoParams) => {
                     log.info(`Adding simplified video data: ${title}`);
 
                     await sleep(CONSTS.DELAY.START_LOADING_MORE_VIDEOS);
-
-                    if (isSearchResultPage) {
-                        await videoSection.evaluate((el) => el.remove());
-                    }
                 }
 
                 if (!shouldContinue) {
