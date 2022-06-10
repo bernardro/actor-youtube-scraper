@@ -55,10 +55,21 @@ exports.loadVideosUrls = async (loadVideosUrlsParams) => {
                 for (const video of videos) {
                     try {
                         await video.hover();
-                    } catch (e) {}
+                    } catch (e) {
+                        log.debug('Video hover error', { e: e.message });
+                    }
+
+                    // sometimes a single $eval will make this call crash, and will stop the loop
+                    // keeping it as $$eval always return an array, and an empty one when it's not found
+                    const videoUrls = await video.$$eval(url, (els) => els.map((el) => el.href));
+
+                    if (!videoUrls.length) {
+                        log.debug('Video url not found');
+                        continue; // eslint-disable-line no-continue
+                    }
 
                     const rq = await requestQueue.addRequest({
-                        url: await video.$eval(url, (el) => el.href),
+                        url: videoUrls[0],
                         userData: { label: 'DETAIL' },
                     });
 
