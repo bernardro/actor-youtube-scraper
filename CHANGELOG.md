@@ -1,3 +1,8 @@
+## 2022-06-10
+
+*Fixes*:
+- Channel page without `/watch` selector
+
 ## 2021-09-15
 *Features*
 - Add possibility to scrape video comments. See `maxComments` input field.
