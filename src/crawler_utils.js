@@ -117,6 +117,8 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     const videoId = utils.getVideoId(request.url);
     log.debug(`got videoId as ${videoId}`);
 
+    // TODO: These getDataFromXpath are bad design as any missing selector with crash the whole page
+    // Should instead use JQuery or be try/catched
     log.debug(`searching for title at ${titleXp}`);
     const title = await utils.getDataFromXpath(page, titleXp, 'innerHTML')
         .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-title-failed'));
@@ -164,8 +166,14 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     const durationStr = await utils.getDataFromSelector(page, durationSlctr, 'innerHTML');
     log.debug(`got videoDuration as ${durationStr}`);
 
+    const commentsText = await page.$eval('#comments #contents', (el) => el.textContent);
+    console.log(`comments: ${commentsText}`);
+    const areCommentsTurnedOff = commentsText?.trim().startsWith('Comments are turned off');
     log.debug(`searching for comments Count at ${commentsSlctr}`);
-    const commentsCount = await utils.getDataFromSelector(page, commentsSlctr, 'innerText');
+
+    const commentsCount = areCommentsTurnedOff
+        ? 0
+        : await utils.getDataFromSelector(page, commentsSlctr, 'innerText');
     log.debug(`got comments Count as ${commentsCount}`);
 
     const description = await utils.getDataFromXpath(page, descriptionXp, 'innerHTML');
