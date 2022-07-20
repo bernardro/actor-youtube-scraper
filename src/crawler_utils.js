@@ -168,10 +168,10 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
 
     const commentsText = await page.$eval('#comments #contents', (el) => el.textContent);
     console.log(`comments: ${commentsText}`);
-    const areCommentsTurnedOff = commentsText?.trim().startsWith('Comments are turned off');
+    const commentsTurnedOff = commentsText?.trim().startsWith('Comments are turned off');
     log.debug(`searching for comments Count at ${commentsSlctr}`);
 
-    const commentsCount = areCommentsTurnedOff
+    const commentsCount = commentsTurnedOff
         ? 0
         : await utils.getDataFromSelector(page, commentsSlctr, 'innerText');
     log.debug(`got comments Count as ${commentsCount}`);
@@ -209,6 +209,7 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
         text,
         subtitles,
         comments,
+        commentsTurnedOff,
     }, { page, request });
 };
 
