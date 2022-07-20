@@ -11,7 +11,7 @@
         "pupetteer"
     ],
     "dependencies": {
-        "apify": "^1.2.1",
+        "apify": "^2.3.0",
         "moment": "^2.29.1",
         "node-fetch": "^2.6.1",
         "puppeteer": "*"

@@ -1,5 +1,9 @@
-## 2022-06-10
+## 2022-07-20
+*Fixes*
+- Correctly handle videos with comments turned off. 
+- Add `commentsTurnedOff` to output.
 
+## 2022-06-10
 *Fixes*:
 - Channel page without `/watch` selector
 
