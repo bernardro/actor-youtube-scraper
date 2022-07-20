@@ -167,7 +167,6 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     log.debug(`got videoDuration as ${durationStr}`);
 
     const commentsText = await page.$eval('#comments #contents', (el) => el.textContent);
-    console.log(`comments: ${commentsText}`);
     const commentsTurnedOff = commentsText?.trim().startsWith('Comments are turned off');
     log.debug(`searching for comments Count at ${commentsSlctr}`);
 
