@@ -285,9 +285,10 @@ const getBasicInformation = async (basicInfoParams) => {
                         const videoDetails = await video.$eval(videoTitle, (el) => el.ariaLabel) || '';
 
                         const videoDetailsArray = videoDetails.replace(title, ``).replace(`by ${channelName}`, ``).split(' ').filter((item) => item);
-                        let simplifiedDate = videoDetailsArray.slice(0, 3).join(' ');
+                        let simplifiedDate = videoDetailsArray.slice(0, videoDetailsArray.indexOf('ago') + 1)
+                            .slice(-3).join(' ');
                         const viewCount = +videoDetailsArray[videoDetailsArray.length - 2].replace(/\D/g, '');
-                        let durationRaw = videoDetailsArray.slice(3, videoDetailsArray.length - 2).join(' ');
+                        let durationRaw = videoDetailsArray.slice(6, videoDetailsArray.length - 2).join(' ');
 
                         let duration;
                         let isError = false;
@@ -304,8 +305,7 @@ const getBasicInformation = async (basicInfoParams) => {
                         if (isError) {
                             try {
                                 console.log(`Trying to parse alternative duration`);
-                                durationRaw = videoDetailsArray.slice(2, videoDetailsArray.length - 2).join(' ');
-                                simplifiedDate = videoDetailsArray.slice(2, 5).join(' ');
+                                durationRaw = videoDetailsArray.slice(videoDetailsArray.indexOf('ago') + 1, -2).join(' ');
                                 duration = await video.$eval(`span[aria-label="${durationRaw}"]`, (el) => el.innerText);
                             } catch (e) {
                                 console.log(`Couldn't parse duration, sending the raw duration`);
