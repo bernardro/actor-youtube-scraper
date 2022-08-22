@@ -283,9 +283,9 @@ const getBasicInformation = async (basicInfoParams) => {
                         const videoId = utils.getVideoId(videoUrl);
                         title = await video.$eval(videoTitle, (el) => el.title);
                         const videoDetails = await video.$eval(videoTitle, (el) => el.ariaLabel) || '';
-
+                        //videoDetailsArray exmpl: ["by", "Bloomberg", "Quicktake:", "Now", "3", "hours", "ago", "1", "minute", "1,453", "views"]
                         const videoDetailsArray = videoDetails.replace(title, ``).replace(`by ${channelName}`, ``).split(' ').filter((item) => item);
-                        let simplifiedDate = videoDetailsArray.slice(0, videoDetailsArray.indexOf('ago') + 1)
+                        let simplifiedDate = videoDetailsArray.slice(0, videoDetailsArray.indexOf('ago') + 1) // "date" info is always before 'ago'
                             .slice(-3).join(' ');
                         const viewCount = +videoDetailsArray[videoDetailsArray.length - 2].replace(/\D/g, '');
                         let durationRaw = videoDetailsArray.slice(6, videoDetailsArray.length - 2).join(' ');
