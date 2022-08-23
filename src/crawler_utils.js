@@ -253,7 +253,7 @@ const getBasicInformation = async (basicInfoParams) => {
         channelUrl = await page.$eval(canonicalUrl, (el) => el.href);
         const subscribersStr = await page.$eval(subscriberCount, (el) => el.innerText.replace(/subscribers/ig, '').trim());
         numberOfSubscribers = unformatNumbers(subscribersStr);
-        channelName = await page.$eval(channelNameText, (el) => el.innerText);
+        channelName = (await page.$eval(channelNameText, (el) => el.innerText)).trim();
     }
 
     try {
@@ -331,8 +331,8 @@ const getBasicInformation = async (basicInfoParams) => {
                             title = await video.$eval(simplifiedResultVideoTitle, (el) => el.innerText);
                             const videoUrl = await video.$eval(simplifiedResultVideoTitle, (el) => el.href);
                             const duration = await video.$eval(simplifiedResultDurationText, (el) => el.innerText);
-                            const channelName = await video.$eval(simplifiedResultChannelName, (el) => el.innerText);
-                            const channelUrl = await video.$eval(simlifiedResultChannelUrl, (el) => el.href);
+                            const channelName = (await page.$eval(channelNameText, (el) => el.innerText)).trim(); // previously was => simplifiedResultChannelName
+                            const channelUrl = await page.$eval(canonicalUrl, (el) => el.href); // previously was => simlifiedResultChannelUrl
                             const viewCountRaw = await video.$eval(simplifiedResultViewCount, (el) => el.innerText);
                             const viewCount = unformatNumbers(viewCountRaw);
                             const date = await video.$eval(simplifiedResultDate, (el) => el.innerText);
