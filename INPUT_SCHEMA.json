@@ -9,7 +9,7 @@
             "description": "What to search Youtube for",
             "editor": "textfield",
             "prefill": "Madonna",
-            "maxLength" : 250,
+            "maxLength" : 250
         },
         "maxResults": {
             "title": "Maximum search results",
