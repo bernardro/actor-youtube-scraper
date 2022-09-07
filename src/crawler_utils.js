@@ -137,9 +137,28 @@ exports.handleDetail = async (page, request, extendOutputFunction, subtitlesSett
     const uploadDate = moment(uploadDateCleaned, 'MMM DD, YYYY').format();
     log.debug(`got uploadDate as ${uploadDate}, uploadDateStr: ${uploadDateStr}, uploadDateCleaned: ${uploadDateCleaned}`);
 
-    log.debug(`searching for likesCount at ${likesXp}`);
-    const likesStr = await utils.getDataFromXpath(page, likesXp, 'innerHTML')
-        .catch((e) => handleErrorAndScreenshot(page, e, 'Getting-likesCount-failed'));
+
+    // YT returns 3 different types of "like" button. Couldn't find any generic selector. Getting info from <script>
+    const likesStr = await page.evaluate(() => {
+        const allScriptsArray = document.body.querySelectorAll('script');
+        const allScriptsText = [];
+        allScriptsArray.forEach((el) => {
+            const text = el.innerHTML;
+            allScriptsText.push(text);
+        });
+        let neededScript = null;
+        allScriptsText.map((el) => {
+            // NOTE (for future): there is some other useful info in JSON, that we can use just in case.
+            if (el.includes('var ytInitialData')) {
+                neededScript = el;
+            }
+        });
+        
+        // JSON has invalid chars, can't parse it. Dealing with it as a string
+        const result = neededScript.split('likes')[0].split('label')[1];// example string: '":"19,419 '
+        return result;
+    });
+
     const likesCount = utils.unformatNumbers(likesStr);
     log.debug(`got likesCount as ${likesCount}`);
 
